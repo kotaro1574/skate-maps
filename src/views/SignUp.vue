@@ -2,51 +2,44 @@
   <div class="signup">
     <div class="signup-card">
       <h1 class="signup-title">Sign up</h1>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="name" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="name" trim></b-form-input>
-        </b-form-group>
+      <div class="form">
+        <input placeholder="ユーザーネーム" type="text" v-model="name" />
+        <input placeholder="メールアドレス" type="email" v-model="email" />
+        <input placeholder="パスワード" type="password" v-model="password" />
+        <input placeholder="住所" type="text" v-model="address" />
+        <button @click="auth">新規登録</button>
       </div>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="email" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="email" trim></b-form-input>
-        </b-form-group>
-      </div>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="password" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="password" trim></b-form-input>
-        </b-form-group>
-      </div>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="address" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="address" trim></b-form-input>
-        </b-form-group>
-      </div>
-      <button>ログイン</button>
     </div>
   </div>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        name: '',
-        email: '',
-        password: '',
-        address: ''
+import axios from "axios";
+export default {
+  data() {
+    return {
+      name: '',
+      email: '',
+      password: '',
+      address: ''
+    }
+  },
+  methods: {
+    auth() {
+      axios
+        .post("http://127.0.0.1:8000/api/register", {
+          name: this.name,
+          email: this.email,
+          password: this.password,
+          address: this.address
+        })
+        .then(response => {
+          console.log(response);
+          this.$router.replace("/");
+        })
+        .catch(error => {
+          alert(error);
+        });
       }
     }
   }

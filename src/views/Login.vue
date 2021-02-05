@@ -2,23 +2,11 @@
   <div class="login">
     <div class="login-card">
       <h1 class="login-title">Log in</h1>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="email" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="email" trim></b-form-input>
-        </b-form-group>
+      <div class="form">
+        <input type="email" placeholder="メールアドレス" v-model="email" />
+        <input type="password" placeholder="パスワード" v-model="password" />
+        <button @click="auth">ログイン</button>
       </div>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="password" 
-          label-for="input-1"  
-        >
-          <b-form-input id="input-1" v-model="password" trim></b-form-input>
-        </b-form-group>
-      </div>
-      <button>ログイン</button>
     </div>
   </div>
 </template>
@@ -29,6 +17,14 @@
       return {
         email: '',
         password: ''
+      }
+    },
+    methods: {
+      auth() {
+        this.$store.dispatch("login", {
+          email: this.email,
+          password: this.password
+        })
       }
     }
   }

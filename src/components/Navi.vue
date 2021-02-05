@@ -11,6 +11,7 @@
             <b-nav-item @click="transitionMyMap()">MyMap</b-nav-item>
             <b-nav-item @click="transitionSpot()">Spot</b-nav-item>
             <b-nav-item @click="transitionPost()">Post</b-nav-item>
+            <b-nav-item @click="$store.dispatch('logout')">ログアウト</b-nav-item>
           </b-navbar-nav>
         </b-collapse>
       </b-navbar>
