@@ -3,7 +3,7 @@
     <div class="profile">
       <img src="../assets/IMG_4195 2.jpg" alt="" class="profile-img">
       <h3 class="profile-name">{{ name }} </h3>
-      <p>広島でスケボーしています!</p>
+      <p>{{ profile }}</p>
       <button @click="$router.push({ name: 'MyMapEdit' })">編集</button>
     </div>
     <Map />
@@ -17,7 +17,8 @@ import Cards from "../components/Cards";
 export default {
   data() {
     return {
-      name: this.$store.state.user.name
+      name: this.$store.state.user.name,
+      profile: this.$store.state.user.profile
     }
   },
   components: {

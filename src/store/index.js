@@ -59,12 +59,11 @@ export default new Vuex.Store({
           console.log(error);
         })
     },
-    async updateUserData({ commit }) {
+    async updateUserData({ commit }, { email }) {
       const responseUser = await axios.get(
-        "http://127.0.0.1:8000/api/user",
-        {
+        "http://127.0.0.1:8000/api/user", {
           params: {
-            email: this.$store.state.user.email
+            email: email
           }
         }
       )

@@ -3,11 +3,11 @@
     <div class="signup-card">
       <h1 class="signup-title">Sign up</h1>
       <div class="form">
-        <input placeholder="ユーザーネーム" type="text" v-model="name" />
-        <input placeholder="メールアドレス" type="email" v-model="email" />
-        <input placeholder="パスワード" type="password" v-model="password" />
-        <input placeholder="住所" type="text" v-model="address" />
-        <button @click="auth">新規登録</button>
+        <p><input placeholder="ユーザーネーム" type="text" v-model="name" /></p>
+        <p><input placeholder="メールアドレス" type="email" v-model="email" /></p>
+        <p><input placeholder="パスワード" type="password" v-model="password" /></p>
+        <p><input placeholder="住所" type="text" v-model="address" /></p>
+        <button type="submit">新規登録</button>
       </div>
     </div>
   </div>
@@ -18,6 +18,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      errors: [],
       name: '',
       email: '',
       password: '',
@@ -25,6 +26,19 @@ export default {
     }
   },
   methods: {
+    checkForm() {
+      this.errors = [];
+      console.log(this.errors);
+      if (!this.name) {
+        this.errors.push({ nameNull: '名前を入力してください' });
+      }
+      if (!this.email) {
+        this.errors.push({ emailNull: "メールアドレスを入力してください" });
+      }
+      // } else if (!this.validEmail(this.email)) {
+      //   this.errors.push("有効なメールアドレスを入力してください")
+      // }
+    },
     auth() {
       axios
         .post("http://127.0.0.1:8000/api/register", {
