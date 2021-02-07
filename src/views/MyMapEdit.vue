@@ -59,7 +59,7 @@ export default {
       console.log(this.$store.state.user.email);
       axios
       .put("http://127.0.0.1:8000/api/user", {
-        // email: this.$store.state.user.email,
+        email: this.$store.state.user.email,
         name: this.name,
         profile: this.profile,
         address: this.address,
@@ -68,12 +68,13 @@ export default {
       .then((response) => {
         console.log(response);
         console.log(response.data.data.image);
-        const decodeData = response.data.data.image;
+        // const decodeData = response.data.data.image;
         this.$store.dispatch("updateUserData", {
-          email: this.$store.state.user.email
+          email: this.$store.state.user.email,
+          userImg: response.data.data.image
         });
-        const img = document.getElementById("img");
-        img.setAttribute('src', decodeData);
+        // const img = document.getElementById("img");
+        // img.setAttribute('src', decodeData);
       })
     }
   }

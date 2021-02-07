@@ -10,7 +10,8 @@ export default new Vuex.Store({
   plugins: [createPersistedState()],
   state: {
     auth: "",
-    user: ""
+    user: "", 
+    userImg: "",
   },
   mutations: {
     auth(state, payload) {
@@ -18,6 +19,9 @@ export default new Vuex.Store({
     },
     user(state, payload) {
       state.user = payload;
+    },
+    userImg(state, payload) {
+      state.userImg = payload;
     },
     logout(state, payload) {
       state.auth = payload;
@@ -59,7 +63,7 @@ export default new Vuex.Store({
           console.log(error);
         })
     },
-    async updateUserData({ commit }, { email }) {
+    async updateUserData({ commit }, { email, userImg }) {
       const responseUser = await axios.get(
         "http://127.0.0.1:8000/api/user", {
           params: {
@@ -69,6 +73,7 @@ export default new Vuex.Store({
       )
       console.log(responseUser.data.data[0]);
       commit("user", responseUser.data.data[0]);
+      commit("userImg", userImg);
       router.replace("/mymap");
     }
   },

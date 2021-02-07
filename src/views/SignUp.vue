@@ -3,11 +3,16 @@
     <div class="signup-card">
       <h1 class="signup-title">Sign up</h1>
       <div class="form">
+        <p v-if="errors.length">
+          <ul>
+            <li v-for="(error, index) in errors" :key="index" style="color: red;">{{ error }}</li>
+          </ul>
+        </p>
         <p><input placeholder="ユーザーネーム" type="text" v-model="name" /></p>
         <p><input placeholder="メールアドレス" type="email" v-model="email" /></p>
         <p><input placeholder="パスワード" type="password" v-model="password" /></p>
         <p><input placeholder="住所" type="text" v-model="address" /></p>
-        <button type="submit">新規登録</button>
+        <button type="submit" @click="auth">新規登録</button>
       </div>
     </div>
   </div>
@@ -26,18 +31,27 @@ export default {
     }
   },
   methods: {
-    checkForm() {
+    checkForm(e) {
       this.errors = [];
       console.log(this.errors);
       if (!this.name) {
-        this.errors.push({ nameNull: '名前を入力してください' });
+        this.errors.push('名前を入力してください');
       }
       if (!this.email) {
-        this.errors.push({ emailNull: "メールアドレスを入力してください" });
+        this.errors.push("メールアドレスを入力してください");
+      } else if (!this.validEmail(this.email)) {
+        this.errors.push("有効なメールアドレスを入力してください")
       }
-      // } else if (!this.validEmail(this.email)) {
-      //   this.errors.push("有効なメールアドレスを入力してください")
-      // }
+
+      if (!this.errors.length) {
+        return true;
+      }
+
+      e.preventDefault();
+    },
+    validEmail(email) {
+      const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
     },
     auth() {
       axios

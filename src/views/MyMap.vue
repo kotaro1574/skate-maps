@@ -1,9 +1,12 @@
 <template>
   <div class="mymap">
     <div class="profile">
-      <img src="../assets/IMG_4195 2.jpg" alt="" class="profile-img">
+      <img :src="userImg" alt="" class="profile-img">
       <h3 class="profile-name">{{ name }} </h3>
       <p>{{ profile }}</p>
+      <p>
+      {{userImag}}
+      </p>
       <button @click="$router.push({ name: 'MyMapEdit' })">編集</button>
     </div>
     <Map />
@@ -18,7 +21,8 @@ export default {
   data() {
     return {
       name: this.$store.state.user.name,
-      profile: this.$store.state.user.profile
+      profile: this.$store.state.user.profile,
+      userImg: this.$store.state.userImag
     }
   },
   components: {
