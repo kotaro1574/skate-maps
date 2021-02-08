@@ -4,9 +4,6 @@
       <img :src="userImg" alt="" class="profile-img">
       <h3 class="profile-name">{{ name }} </h3>
       <p>{{ profile }}</p>
-      <p>
-      {{userImag}}
-      </p>
       <button @click="$router.push({ name: 'MyMapEdit' })">編集</button>
     </div>
     <Map />
@@ -22,7 +19,7 @@ export default {
     return {
       name: this.$store.state.user.name,
       profile: this.$store.state.user.profile,
-      userImg: this.$store.state.userImag
+      userImg: this.$store.state.user.image
     }
   },
   components: {

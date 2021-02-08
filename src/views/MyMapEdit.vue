@@ -2,9 +2,9 @@
   <div class="mymapedit">
     <div class="mymapedit-card">
       <h1 class="mymapedit-title">プロフィール編集</h1>
-      <div v-if="confirmedImage">
+      <div v-if="profileImg">
         <button @click="deletePreview()">X</button>
-        <img :src="confirmedImage" class="profile-img">
+        <img :src="profileImg" class="profile-img">
       </div>
       <div class="form">
         <input placeholder="ユーザーネーム" type="text" v-model="name" />
@@ -25,56 +25,37 @@ export default {
       name: '',
       profile: '',
       address: '',
-      fileInfo: '',
-      confirmedImage: ''
+      profileImg: ''
     }
   },
   methods: {
     confirmImage(e) {
-      this.fileInfo = e.target.files[0];
+      const image = e.target.files[0];
       const reader = new FileReader();
-      reader.readAsDataURL(this.fileInfo);
+      reader.readAsDataURL(image);
 
       reader.onload = e => {
-        this.confirmedImage = e.target.result;
-        console.log(this.fileinfo);
+        this.profileImg = e.target.result;
+        console.log(this.profileImg);
       }
     },
     deletePreview() {
-      this.confirmedImage = '';
+      this.profileImg = '';
     },
     userEdit() {
-      const formData = new FormData();
-      formData.append('email', this.$store.state.user.email);
-      formData.append('name', this.name);
-      formData.append('profile', this.profile);
-      formData.append('address', this.address);
-      formData.append('file', this.confirmedImage);
-
-      for (let value of formData.entries()) { 
-        console.log(value); 
-      }
-      console.log(this.fileInfo);
-
-      console.log(this.$store.state.user.email);
       axios
       .put("http://127.0.0.1:8000/api/user", {
         email: this.$store.state.user.email,
         name: this.name,
         profile: this.profile,
         address: this.address,
-        file: this.confirmedImage
+        file: this.profileImg
       })
       .then((response) => {
         console.log(response);
-        console.log(response.data.data.image);
-        // const decodeData = response.data.data.image;
         this.$store.dispatch("updateUserData", {
-          email: this.$store.state.user.email,
-          userImg: response.data.data.image
+          email: this.$store.state.user.email
         });
-        // const img = document.getElementById("img");
-        // img.setAttribute('src', decodeData);
       })
     }
   }
