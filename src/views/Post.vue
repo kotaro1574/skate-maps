@@ -2,48 +2,65 @@
   <div class="post">
     <div class="post-card">
       <h1 class="post-title">Post</h1>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="title" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="title" trim></b-form-input>
-        </b-form-group>
+      <div v-if="spotImg">
+        <button @click="deletePreview()">X</button>
+        <img :src="spotImg" class="spot-img">
       </div>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="information" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="information" trim></b-form-input>
-        </b-form-group>
+      <div class="form">
+        <input placeholder="スポットの名前" type="text" v-model="spotName" />
+        <input placeholder="スポットの住所" type="text" v-model="spotAddress" />
+        <p><input type="file" name="file" @change="confirmImage"></p>
+        <button @click="spotPost()">投稿する</button>
       </div>
-      <b-form-file v-model="file2" class="mt-3" plain></b-form-file>
-      <div class="mt-3">Selected file: {{ file ? file.name : '' }}</div>
-      <div>
-        <b-form-group id="fieldset-1" 
-          label="address" 
-          label-for="input-1" 
-        >
-          <b-form-input id="input-1" v-model="address" trim></b-form-input>
-        </b-form-group>
-      </div>
-      <button>投稿する</button>
     </div>
   </div>
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        title: '',
-        information: '',
-        file: null,
-        address: ''
+import axios from "axios";
+export default {
+  data() {
+    return {
+      spotName: '',
+      spotAddress: '',
+      spotImg: '',
+    }
+  },
+  methods: {
+    confirmImage(e) {
+      const image = e.target.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(image);
+
+      reader.onload = e => {
+      this.spotImg = e.target.result;
+      console.log(this.spotImg);
       }
+    },
+    deletePreview() {
+      this.spotImg = '';
+    },
+    spotPost() {
+      axios
+        .post("http://127.0.0.1:8000/api/posts", {
+          spotName: this.spotName,
+          spotAddress: this.spotAddress,
+          spotImg: this.spotImg
+        })
+        .then((response) => {
+          console.log(response);
+          this.spotName = '',
+          this.spotAddress = '',
+          this.spotImg = '',
+          this.$router.go({
+            path: this.$router.currentRoute.path,
+            force: true
+          })
+        })
+      this.$router.push('/spot');
     }
   }
+}
 </script>
 
 <style scoped>
@@ -60,5 +77,9 @@
 .post-title {
   margin-top: 10px;
   text-align: center;
+}
+.spot-img {
+  height: 300px;
+  width: 80%;
 }
 </style>

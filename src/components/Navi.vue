@@ -9,7 +9,6 @@
             <b-nav-item @click="transitionLogin()">ログイン</b-nav-item>
             <b-nav-item @click="transitionSignup()">新規登録</b-nav-item>
             <b-nav-item @click="transitionMyMap()">MyMap</b-nav-item>
-            <b-nav-item @click="transitionSpot()">Spot</b-nav-item>
             <b-nav-item @click="transitionPost()">Post</b-nav-item>
             <b-nav-item @click="$store.dispatch('logout')">ログアウト</b-nav-item>
           </b-navbar-nav>
@@ -33,9 +32,6 @@ export default {
     },
     transitionMyMap() {
       this.$router.push({ name: "MyMap" });
-    },
-    transitionSpot() {
-      this.$router.push({ name: "Spot" });
     },
     transitionPost() {
       this.$router.push({ name: "Post" });

@@ -11,10 +11,14 @@
 import Map from "../components/Map";
 import Cards from "../components/Cards";
 export default {
+  data() {
+    return {
+    }
+  },
   components: {
     Map,
     Cards
-  }
+  },
 }
 </script>
 

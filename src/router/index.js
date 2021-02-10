@@ -44,12 +44,13 @@ const routes = [
     }
   },
   {
-    path: '/spot',
+    path: '/spot/:id',
     name: 'Spot',
-    component: Spot
+    component: Spot,
+    props: true
   },
   {
-    path: '/Post',
+    path: '/post',
     name: 'Post',
     component: Post,
     meta: {

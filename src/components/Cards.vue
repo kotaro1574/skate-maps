@@ -4,10 +4,10 @@
       <p>New Spots</p>
     </div>
     <div class="cards-flex">
-    <div class="card" v-for="(card, index) in cards" :key="index">
+    <div class="card" v-for="(spot, index) in spots" :key="index" @click="$router.push({ path: '/spot/'+spot.id, params: { id: spot.id },})">
       <b-card 
-        :title="card.title"
-        :img-src="card.img"
+        :title="spot.spotName"
+        :img-src="spot.spotImg"
         img-height=200
         img-alt="Image" 
         img-top tag="article" 
@@ -23,36 +23,33 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   data() {
     return {
-      cards: [
-        {
-          title: "千田公園",
-          img: require("../assets/top.jpg")
-        },
-        {
-          title: "La",
-          img: require("../assets/top.jpg")
-        },
-        {
-          title: "リサーチパーク",
-          img: require("../assets/top.jpg")
-        },
-        {
-          title: "呉ポートピア",
-          img: require("../assets/top.jpg")
-        },
-        {
-          title: "send",
-          img: require("../assets/top.jpg")
-        },
-        {
-          title: "send",
-          img: require("../assets/top.jpg")
-        },
-      ]
+      spots: []
     }
+  },
+  methods: {
+    async getSpots() {
+      let spot = [];
+      const spots = await axios.get("http://127.0.0.1:8000/api/posts/")
+      console.log(spots);
+      for (let i = 0; i < spots.data.data.length; i++) {
+        await axios
+          .get(
+            "http://127.0.0.1:8000/api/posts/" + 
+            spots.data.data[i].id
+          )
+          .then((response) => {
+            spot.push(response.data);
+          })
+      }
+      this.spots = spot;
+    },
+  },
+  created() {
+    this.getSpots()
   }
 }
 </script>
