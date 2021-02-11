@@ -31,7 +31,7 @@ export default {
       this.$router.push({ name: "SignUp"});
     },
     transitionMyMap() {
-      this.$router.push({ name: "MyMap" });
+      this.$router.push({ path: '/mymap/'+this.$store.state.user.id, params: { id: this.$store.state.user.id } });
     },
     transitionPost() {
       this.$router.push({ name: "Post" });

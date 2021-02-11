@@ -19,9 +19,6 @@ export default new Vuex.Store({
     user(state, payload) {
       state.user = payload;
     },
-    userImg(state, payload) {
-      state.userImg = payload;
-    },
     logout(state, payload) {
       state.auth = payload;
     }
@@ -46,7 +43,7 @@ export default new Vuex.Store({
       console.log(responseUser.data.data[0]);
       commit("auth", responseLogin.data.auth);
       commit("user", responseUser.data.data[0]);
-      router.replace("/mymap");
+      router.replace("/mymap/" + this.state.user.id);
     },
     logout({ commit }) {
       axios

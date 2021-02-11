@@ -28,9 +28,10 @@ const routes = [
     component: SignUp
   },
   {
-    path: '/mymap',
+    path: '/mymap/:id',
     name: 'MyMap',
     component: MyMap,
+    props: true,
     meta: {
       requresAuth: true,
     }

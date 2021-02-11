@@ -32,9 +32,26 @@
         </div>
       </div>
       
-      <div class="comment-area" v-for="(comment, index) in comments" :key="index">
-        <p>{{ comment.comment }}</p>
-        <img :src="comment.commentImg" alt="">
+      <div class="comment-area" v-for="(commentData, index) in comments" :key="index">
+        <div class="comment-user">
+          <img 
+            :src="commentData.user.image"
+            class="profile-img"
+            @click="$router.push({ path: '/mymap/'+ commentData.user.id, params: { id: commentData.user.id } })"
+          >
+          <p>{{ commentData.user.name }}</p>
+        </div>
+        <p class="comment-text">{{ commentData.comment.comment }}</p>
+        <div class="comment-image">
+          <img :src="commentData.comment.commentImg" class="comment-img">
+        </div>
+        <button 
+          class="comment-delete" 
+          v-if="$store.state.user.id == commentData.user.id"
+          @click="commentDelete(commentData.comment.id)"
+        >
+          削除
+        </button>
       </div>
     </div>
   </div>
@@ -122,22 +139,20 @@ export default {
         })
     },
     async commentGet() {
-      let comment = [];
-      const comments = await axios.get("http://127.0.0.1:8000/api/comments/", { post_id: this.id })
+      let commentData = [];
+      const comments = await axios.get("http://127.0.0.1:8000/api/comments/", { params: { post_id: this.id }})
       console.log(comments.data.data);
       for (let i = 0; i < comments.data.data.length; i++) {
         await axios
           .get(
-            "http://127.0.0.1:8000/api/comments/" + 
-            comments.data.data[i].id
-          )
+            "http://127.0.0.1:8000/api/comments/" + comments.data.data[i].id)
           .then((response) => {
-            comment.push(response.data);
-            console.log(comment);
+            console.log(response);
+            commentData.push(response.data);
+            console.log(commentData);
           })
       }
-      this.comments = comment;
-      console.log(this.comments);
+      this.comments = commentData;
     },
     commentPost() {
       axios
@@ -155,6 +170,17 @@ export default {
             path: this.$router.currentRoute.path,
             force: true,
           });
+        })
+    },
+    commentDelete(commentId) {
+      axios
+        .delete("http://127.0.0.1:8000/api/comments/"+commentId)
+        .then((response) => {
+          console.log(response)
+          this.$router.go({
+                path: this.$router.currentRoute.path,
+                force: true,
+              });
         })
     }
   },
@@ -196,5 +222,40 @@ export default {
   width: 30%;
   padding: 10px;
   background: #fff;
+}
+.comment-area{
+  height: 140px;
+  width: 80%;
+  display: flex;
+  justify-content: space-around;
+}
+.comment-user {
+  height: 100%;
+  width: 20%;
+}
+.comment-text{
+  text-align: center;
+  width: 60%;
+  height: 100%;
+}
+.comment-image {
+  margin: 0;
+  height: 100%;
+  width: 20%;
+  text-align: center;
+}
+.comment-img {
+  height: 90px;
+  width: 90px;
+}
+.profile-img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-left: 30px;
+}
+.comment-delete {
+  height: 50px;
+  width: 30px;
 }
 </style>
