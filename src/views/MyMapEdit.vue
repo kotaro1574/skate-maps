@@ -9,8 +9,21 @@
       <div class="form">
         <input placeholder="ユーザーネーム" type="text" v-model="name" />
         <input placeholder="プロフィール" type="text" v-model="profile" />
-        <input placeholder="住所" type="text" v-model="address" />
         <p><input type="file" name="file" @change="confirmImage"></p>
+        <GmapMap
+          :center="{lat: 34.39146551179752, lng: 132.46128012819383}"
+          :zoom="12"
+          :options="{streetViewControl: false}"
+          map-type-id="terrain"
+          style="width: 100%; height: 320px"
+          @click="place($event)"
+        >
+          <GmapMarker
+            :position="position"
+            :clickable="true"
+            :draggable="true"
+          />
+        </GmapMap>
         <button type="submit" @click="userEdit()">編集</button>
       </div>
     </div>
@@ -24,7 +37,10 @@ export default {
     return {
       name: '',
       profile: '',
-      address: '',
+      position: {
+        lat: '',
+        lng: ''
+      },
       profileImg: ''
     }
   },
@@ -42,13 +58,21 @@ export default {
     deletePreview() {
       this.profileImg = '';
     },
+    place(event) {
+       if (event) {
+        this.position.lat = event.latLng.lat()
+        this.position.lng = event.latLng.lng()
+        console.log(this.position)
+      }
+    },
     userEdit() {
       axios
       .put("http://127.0.0.1:8000/api/user", {
         email: this.$store.state.user.email,
         name: this.name,
         profile: this.profile,
-        address: this.address,
+        userLat: this.position.lat,
+        userLng: this.position.lng,
         file: this.profileImg
       })
       .then((response) => {

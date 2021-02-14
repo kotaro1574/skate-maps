@@ -6,11 +6,11 @@
         <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
-            <b-nav-item @click="transitionLogin()">ログイン</b-nav-item>
-            <b-nav-item @click="transitionSignup()">新規登録</b-nav-item>
-            <b-nav-item @click="transitionMyMap()">MyMap</b-nav-item>
-            <b-nav-item @click="transitionPost()">Post</b-nav-item>
-            <b-nav-item @click="$store.dispatch('logout')">ログアウト</b-nav-item>
+            <b-nav-item v-if="!$store.state.auth" @click="transitionLogin()">ログイン</b-nav-item>
+            <b-nav-item v-if="!$store.state.auth" @click="transitionSignup()">新規登録</b-nav-item>
+            <b-nav-item v-if="$store.state.auth" @click="transitionMyMap()">MyMap</b-nav-item>
+            <b-nav-item v-if="$store.state.auth" @click="transitionPost()">Post</b-nav-item>
+            <b-nav-item v-if="$store.state.auth" @click="$store.dispatch('logout')">ログアウト</b-nav-item>
           </b-navbar-nav>
         </b-collapse>
       </b-navbar>

@@ -69,7 +69,7 @@ export default new Vuex.Store({
       )
       console.log(responseUser.data.data[0]);
       commit("user", responseUser.data.data[0]);
-      router.replace("/mymap");
+      router.replace("/mymap" + this.state.user.id);
     }
   },
   modules: {

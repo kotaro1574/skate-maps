@@ -1,7 +1,39 @@
 <template>
   <div class="spot">
     <img :src="spot.spotImg" alt="" class="spot-img">
-    <Map />
+    <GmapMap
+      :center="position"
+      :zoom="12"
+      :options="{streetViewControl: false}"
+      map-type-id="terrain"
+      style="width: 100%; height: 500px"
+    >
+    <GmapInfoWindow
+        :options="infoOptions"
+        :position="infoWindowPos"
+        :opened="infoWinOpen"
+        @closeclick="infoWinOpen=false"
+      >
+      <div class="card">
+        <b-card 
+          :title="spot.spotName"
+          :img-src="spot.spotImg"
+          img-height=200
+          img-alt="Image" 
+          img-top tag="article" 
+          style="max-width: 20rem;" 
+          class="mb-2" 
+        >
+        </b-card>
+      </div>
+      </GmapInfoWindow>
+      <GmapMarker
+        :position="position"
+        :clickable="true"
+        :draggable="true"
+        @click="toggleInfoWindow()"
+      />
+    </GmapMap>
     <div class="spot-content">
       <h3 class="spot-title">{{ spot.spotName }}</h3>
       <button @click="formToggle(1)">設定</button>
@@ -13,6 +45,20 @@
             <button @click="deletePreview()">X</button>
             <img :src="spotImg" class="preview-img">
           </div>
+          <GmapMap
+            :center="position"
+            :zoom="12"
+            :options="{streetViewControl: false}"
+            map-type-id="terrain"
+            style="width: 100%; height: 200px"
+            @click="place($event)"
+          >
+            <GmapMarker
+              :position="position"
+              :clickable="true"
+              :draggable="true"
+            />
+          </GmapMap>
           <button @click="spotEdit()">編集する</button>
           <button @click="spotDelete()">削除</button>
           <button @click="formToggle(1)">閉じる</button>
@@ -59,7 +105,6 @@
 
 <script>
 import axios from "axios";
-import Map from "../components/Map";
 export default {
   props: ["id"],
   data() {
@@ -71,18 +116,40 @@ export default {
       spotComment: '',
       spotCommentImg: '',
       spotCommentForm: false,
-      comments: []
+      comments: [],
+      position: {
+        lat: '',
+        lng: ''
+      },
+      infoOptions: {
+        pixelOffset: {
+          width: 0,
+          height: -35
+        }
+      },
+      infoWindowPos: null,
+      infoWinOpen: false
     }
   },
   methods: {
-    spotShow() {
-      axios
+    async spotShow() {
+      await axios
         .get("http://127.0.0.1:8000/api/posts/" + this.id)
         .then((response) => {
           console.log(response)
           this.spot = response.data;
           console.log(this.spot)
         })
+    },
+    conversion() {
+      console.log(this.spot)
+      this.position.lat = Number(this.spot.spotLat)
+      this.position.lng = Number(this.spot.spotLng)
+      console.log(this.position)
+    },
+    toggleInfoWindow() {
+      this.infoWindowPos = this.position;
+      this.infoWinOpen = true;
     },
     formToggle(i) {
       if(i == 1) {
@@ -115,12 +182,21 @@ export default {
         this.spotCommentImg = ''
       }
     },
+    place(event) {
+       if (event) {
+        this.position.lat = event.latLng.lat()
+        this.position.lng = event.latLng.lng()
+        console.log(this.position)
+      }
+    },
     spotEdit() {
       axios
         .put("http://127.0.0.1:8000/api/posts/" + this.id, {
           spotId: this.id,
           spotName: this.spotName,
-          spotImg: this.spotImg
+          spotImg: this.spotImg,
+          spotLat: this.position.lat,
+          spotLng: this.position.lng
         })
         .then((response) => {
           console.log(response);
@@ -187,10 +263,9 @@ export default {
   created() {
     this.spotShow();
     this.commentGet();
-    console.log(this.id);
   },
-  components: {
-    Map
+  updated() {
+    this.conversion();
   }
 }
 </script>

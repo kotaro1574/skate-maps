@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     async getSpots() {
-      let spot = [];
+      let spot = []; 
       const spots = await axios.get("http://127.0.0.1:8000/api/posts/")
       console.log(spots);
       for (let i = 0; i < spots.data.data.length; i++) {
@@ -47,9 +47,19 @@ export default {
       }
       this.spots = spot;
     },
+    sendSpotsData() {
+      this.$emit("getSpotsData", this.spots);
+    }
   },
+  beforeCreate() {
+    },
   created() {
-    this.getSpots()
+    this.getSpots();
+  },
+  mounted() {
+    },
+  updated() {
+    this.sendSpotsData();
   }
 }
 </script>

@@ -8,8 +8,22 @@
       </div>
       <div class="form">
         <input placeholder="スポットの名前" type="text" v-model="spotName" />
-        <input placeholder="スポットの住所" type="text" v-model="spotAddress" />
         <p><input type="file" name="file" @change="confirmImage"></p>
+        <GmapMap
+          :center="{lat: 34.39146551179752, lng: 132.46128012819383}"
+          :zoom="12"
+          :options="{streetViewControl: false}"
+          map-type-id="terrain"
+          style="width: 100%; height: 320px"
+          @click="place($event)"
+        >
+          <GmapMarker
+            :position="position"
+            :clickable="true"
+            :draggable="true"
+            @click="toggleInfoWindow()"
+          />
+        </GmapMap>
         <button @click="spotPost()">投稿する</button>
       </div>
     </div>
@@ -22,7 +36,10 @@ export default {
   data() {
     return {
       spotName: '',
-      spotAddress: '',
+      position: {
+        lat: '',
+        lng: ''
+      },
       spotImg: '',
     }
   },
@@ -40,24 +57,34 @@ export default {
     deletePreview() {
       this.spotImg = '';
     },
+    place(event) {
+       if (event) {
+        this.position.lat = event.latLng.lat()
+        this.position.lng = event.latLng.lng()
+        console.log(this.position)
+      }
+    },
     spotPost() {
       axios
         .post("http://127.0.0.1:8000/api/posts", {
           spotName: this.spotName,
-          spotAddress: this.spotAddress,
+          spotLat: this.position.lat,
+          spotLng: this.position.lng,
           spotImg: this.spotImg
         })
         .then((response) => {
           console.log(response);
           this.spotName = '',
-          this.spotAddress = '',
+          this.position.lat = '',
+          this.position.lng = '',
           this.spotImg = '',
+          console.log(response.data.data)
           this.$router.go({
             path: this.$router.currentRoute.path,
             force: true
           })
         })
-      this.$router.push('/spot');
+      this.$router.push('/');
     }
   }
 }
