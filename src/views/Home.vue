@@ -3,7 +3,7 @@
     <div class="home-img">
     </div>
     <GmapMap
-      :center="{lat: 34.39146551179752, lng: 132.46128012819383}"
+      :center="{lat: this.lat, lng: this.lng}"
       :zoom="9"
       :options="{streetViewControl: false}"
       map-type-id="terrain"
@@ -38,8 +38,10 @@
       />
     </GmapMap>
     <div>
-      <v-text-field label="スポット名を入力" v-model="address" @change="onChange">
-      </v-text-field>
+      <p><input type="text" v-model="address"></p>
+      <button @click="onChange()">btn</button>
+      <!-- <v-text-field label="スポット名を入力" v-model="address" @change="onChange">
+      </v-text-field> -->
     </div>
     <Cards @getSpotsData="showSpotsData" />
   </div>
@@ -51,8 +53,8 @@ export default {
   data() {
     return {
       address: "",
-      lat: "",
-      lng: "",
+      lat: 34.39146551179752,
+      lng: 132.46128012819383,
       cardName: '',
       cardImg: '',
       cardId: '',
@@ -72,16 +74,13 @@ export default {
     onChange() {
      this.geocoder.geocode({
        'address': this.address
-     },(results, status) =>{
+     },(results, status) => {
        if(status === google.maps.GeocoderStatus.OK) {
-       // 緯度を取得
         this.lat = results[0].geometry.location.lat();
-       // 経度を取得
         this.lng = results[0].geometry.location.lng();
-
+        this.address = '';
        }
-     }
-     )
+     })
     },
     showSpotsData(spots) {
       this.spots = spots;
@@ -124,10 +123,8 @@ export default {
   created() {
   },
   mounted() {
-    this.$gmapApiPromiseLazy()
-    .then((response) => {
-       console.log(response) 
-      this.geocoder = new google.maps.Geocoder()
+    this.$gmapApiPromiseLazy().then(() => {
+       this.geocoder = new google.maps.Geocoder()
     })
   },
   components: {
