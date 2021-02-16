@@ -1,6 +1,6 @@
 <template>
   <div class="spot">
-    <img :src="spot.spotImg" alt="" class="spot-img">
+    <img :src="spotData.spot.spotImg" alt="" class="spot-img">
     <GmapMap
       :center="position"
       :zoom="12"
@@ -16,8 +16,8 @@
       >
       <div class="card">
         <b-card 
-          :title="spot.spotName"
-          :img-src="spot.spotImg"
+          :title="spotData.spot.spotName"
+          :img-src="spotData.spot.spotImg"
           img-height=200
           img-alt="Image" 
           img-top tag="article" 
@@ -35,7 +35,11 @@
       />
     </GmapMap>
     <div class="spot-content">
-      <h3 class="spot-title">{{ spot.spotName }}</h3>
+      <h3 class="spot-title">{{ spotData.spot.spotName }}</h3>
+      <div>
+        <img src="../assets/heart.png" alt="" @click="fav()">
+        <p>{{ spotData.like.length }}</p>
+      </div>
       <button @click="formToggle(1)">設定</button>
       <div class="modal-form" v-if="spotEditForm">
         <div class="form-content">
@@ -78,23 +82,23 @@
         </div>
       </div>
       
-      <div class="comment-area" v-for="(commentData, index) in comments" :key="index">
+      <div class="comment-area" v-for="(comments, index) in spotData.comments" :key="index">
         <div class="comment-user">
           <img 
-            :src="commentData.user.image"
+            :src="comments.commentUser.image"
             class="profile-img"
-            @click="$router.push({ path: '/mymap/'+ commentData.user.id, params: { id: commentData.user.id } })"
+            @click="$router.push({ path: '/mymap/'+ comments.commentUser.id, params: { id: comments.commentUser.id } })"
           >
-          <p>{{ commentData.user.name }}</p>
+          <p>{{ comments.commentUser.name }}</p>
         </div>
-        <p class="comment-text">{{ commentData.comment.comment }}</p>
+        <p class="comment-text">{{ comments.comment.comment }}</p>
         <div class="comment-image">
-          <img :src="commentData.comment.commentImg" class="comment-img">
+          <img :src="comments.comment.commentImg" class="comment-img">
         </div>
         <button 
           class="comment-delete" 
-          v-if="$store.state.user.id == commentData.user.id"
-          @click="commentDelete(commentData.comment.id)"
+          v-if="$store.state.user.id == comments.commentUser.id"
+          @click="commentDelete(comments.comment.id)"
         >
           削除
         </button>
@@ -109,14 +113,13 @@ export default {
   props: ["id"],
   data() {
     return {
-      spot: '',
+      spotData: '',
       spotName: '',
       spotImg: '',
       spotEditForm: false,
       spotComment: '',
       spotCommentImg: '',
       spotCommentForm: false,
-      comments: [],
       position: {
         lat: '',
         lng: ''
@@ -137,19 +140,57 @@ export default {
         .get("http://127.0.0.1:8000/api/posts/" + this.id)
         .then((response) => {
           console.log(response)
-          this.spot = response.data;
-          console.log(this.spot)
+          this.spotData = response.data;
+          console.log(this.spotData)
         })
     },
     conversion() {
-      console.log(this.spot)
-      this.position.lat = Number(this.spot.spotLat)
-      this.position.lng = Number(this.spot.spotLng)
+      this.position.lat = Number(this.spotData.spot.spotLat)
+      this.position.lng = Number(this.spotData.spot.spotLng)
       console.log(this.position)
     },
     toggleInfoWindow() {
       this.infoWindowPos = this.position;
       this.infoWinOpen = true;
+    },
+    fav() {
+      const result = this.spotData.like.some((value) => {
+        return value.user_id == this.$store.state.user.id;
+      });
+      console.log(result);
+      if (result) {
+        this.spotData.like.forEach((element) => {
+          if (element.user_id == this.$store.state.user.id) {
+            axios({
+              method: "delete",
+              url: "http://127.0.0.1:8000/api/like",
+              data: {
+                post_id: this.id,
+                user_id: this.$store.state.user.id
+              },
+            }).then((response) => {
+              console.log(response);
+              this.$router.go({
+              path: this.$router.currentRoute.path,
+              force: true,
+            });
+            })
+          }
+        })
+      } else {
+        axios
+          .post("http://127.0.0.1:8000/api/like", {
+            post_id: this.id,
+            user_id: this.$store.state.user.id
+          })
+          .then((response) => {
+            console.log(response)
+            this.$router.go({
+              path: this.$router.currentRoute.path,
+              force: true,
+            });
+          })
+      }
     },
     formToggle(i) {
       if(i == 1) {
@@ -214,22 +255,22 @@ export default {
           this.$router.push({ name: 'Home' });
         })
     },
-    async commentGet() {
-      let commentData = [];
-      const comments = await axios.get("http://127.0.0.1:8000/api/comments/", { params: { post_id: this.id }})
-      console.log(comments.data.data);
-      for (let i = 0; i < comments.data.data.length; i++) {
-        await axios
-          .get(
-            "http://127.0.0.1:8000/api/comments/" + comments.data.data[i].id)
-          .then((response) => {
-            console.log(response);
-            commentData.push(response.data);
-            console.log(commentData);
-          })
-      }
-      this.comments = commentData;
-    },
+    // async commentGet() {
+    //   let commentData = [];
+    //   const comments = await axios.get("http://127.0.0.1:8000/api/comments/", { params: { post_id: this.id }})
+    //   console.log(comments.data.data);
+    //   for (let i = 0; i < comments.data.data.length; i++) {
+    //     await axios
+    //       .get(
+    //         "http://127.0.0.1:8000/api/comments/" + comments.data.data[i].id)
+    //       .then((response) => {
+    //         console.log(response);
+    //         commentData.push(response.data);
+    //         console.log(commentData);
+    //       })
+    //   }
+    //   this.comments = commentData;
+    // },
     commentPost() {
       axios
         .post("http://127.0.0.1:8000/api/comments/", {
@@ -262,7 +303,6 @@ export default {
   },
   created() {
     this.spotShow();
-    this.commentGet();
   },
   updated() {
     this.conversion();

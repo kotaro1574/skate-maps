@@ -67,6 +67,7 @@ export default {
     spotPost() {
       axios
         .post("http://127.0.0.1:8000/api/posts", {
+          userId: this.$store.state.user.id,
           spotName: this.spotName,
           spotLat: this.position.lat,
           spotLng: this.position.lng,

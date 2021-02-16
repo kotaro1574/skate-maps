@@ -40,8 +40,6 @@
     <div>
       <p><input type="text" v-model="address"></p>
       <button @click="onChange()">btn</button>
-      <!-- <v-text-field label="スポット名を入力" v-model="address" @change="onChange">
-      </v-text-field> -->
     </div>
     <Cards @getSpotsData="showSpotsData" />
   </div>
@@ -98,11 +96,11 @@ export default {
         const marker = {}
         const position = {}
         const text  = {}
-        position.lat = Number(this.spots[i].spotLat)
-        position.lng = Number(this.spots[i].spotLng)
-        text.cardName = this.spots[i].spotName
-        text.cardImg = this.spots[i].spotImg
-        text.cardId = this.spots[i].id
+        position.lat = Number(this.spots[i].spot.spotLat)
+        position.lng = Number(this.spots[i].spot.spotLng)
+        text.cardName = this.spots[i].spot.spotName
+        text.cardImg = this.spots[i].spot.spotImg
+        text.cardId = this.spots[i].spot.id
         marker.position = position
         marker.text = text
         this.markers.push(marker)
