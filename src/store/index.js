@@ -10,7 +10,8 @@ export default new Vuex.Store({
   plugins: [createPersistedState()],
   state: {
     auth: "",
-    user: ""
+    user: "",
+    error: ""
   },
   mutations: {
     auth(state, payload) {
@@ -21,6 +22,9 @@ export default new Vuex.Store({
     },
     logout(state, payload) {
       state.auth = payload;
+    },
+    error(state, payload) {
+      state.error = payload;
     }
   },
   actions: {
@@ -32,6 +36,8 @@ export default new Vuex.Store({
           password: password
         }
       )
+      console.log(responseLogin);
+      commit("error", responseLogin.data.message);
       const responseUser = await axios.get(
         "http://127.0.0.1:8000/api/user",
         {

@@ -2,11 +2,29 @@
   <div class="login">
     <div class="login-card">
       <h1 class="login-title">Log in</h1>
-      <div class="form">
-        <input type="email" placeholder="メールアドレス" v-model="email" />
-        <input type="password" placeholder="パスワード" v-model="password" />
-        <button @click="auth">ログイン</button>
-      </div>
+      <span>{{ $store.state.error }}</span>
+      <ValidationObserver v-slot="{ handleSubmit }">
+        <form @submit.prevent="handleSubmit()">
+          
+          <ValidationProvider name="メールアドレス" rules="required|email" v-slot="{ errors }">
+            <div class="form-group">
+              <label>メールアドレス</label>
+              <input type="email" class="form-control" v-model="email">
+              <span>{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          
+          <ValidationProvider name="パスワード" rules="required|max:12|min:6" v-slot="{ errors }">
+            <div class="form-group">
+              <label>パスワード</label>
+              <input type="password" class="form-control" v-model="password">
+              <span>{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+
+          <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="auth">ログイン</button>
+        </form>
+      </ValidationObserver>
     </div>
   </div>
 </template>

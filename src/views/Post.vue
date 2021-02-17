@@ -6,26 +6,44 @@
         <button @click="deletePreview()">X</button>
         <img :src="spotImg" class="spot-img">
       </div>
-      <div class="form">
-        <input placeholder="スポットの名前" type="text" v-model="spotName" />
-        <p><input type="file" name="file" @change="confirmImage"></p>
-        <GmapMap
-          :center="{lat: 34.39146551179752, lng: 132.46128012819383}"
-          :zoom="12"
-          :options="{streetViewControl: false}"
-          map-type-id="terrain"
-          style="width: 100%; height: 320px"
-          @click="place($event)"
-        >
-          <GmapMarker
-            :position="position"
-            :clickable="true"
-            :draggable="true"
-            @click="toggleInfoWindow()"
-          />
-        </GmapMap>
-        <button @click="spotPost()">投稿する</button>
-      </div>
+      <ValidationObserver v-slot="{ handleSubmit }">
+        <form @submit.prevent="handleSubmit()">
+
+          <ValidationProvider name="スポットの名前" rules="required" v-slot="{ errors }">
+            <div class="form-group">
+              <label>スポットの名前</label>
+              <input type="text" class="form-control" v-model="spotName">
+              <span>{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+
+          <ValidationProvider name="スポットの写真" rules="required|image" v-slot="{ errors }">
+            <div class="form-group">
+              <label>スポットの写真</label>
+              <input type="file" class="form-control" @change="confirmImage">
+              <span>{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+
+          <GmapMap
+            :center="{lat: 34.39146551179752, lng: 132.46128012819383}"
+            :zoom="12"
+            :options="{streetViewControl: false}"
+            map-type-id="terrain"
+            style="width: 100%; height: 320px"
+            @click="place($event)"
+          >
+            <GmapMarker
+              :position="position"
+              :clickable="true"
+              :draggable="true"
+              @click="toggleInfoWindow()"
+            />
+          </GmapMap>
+          <span>{{ error }}</span><br>
+        <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="spotPost()">投稿する</button>
+        </form>
+      </ValidationObserver>
     </div>
   </div>
 </template>
@@ -35,12 +53,13 @@ import axios from "axios";
 export default {
   data() {
     return {
+      error: '',
       spotName: '',
+      spotImg: '',
       position: {
         lat: '',
         lng: ''
       },
-      spotImg: '',
     }
   },
   methods: {
@@ -65,27 +84,29 @@ export default {
       }
     },
     spotPost() {
+      if (!this.position.lat || !this.position.lng) {
+        this.error = 'マップの位置を指定してください'
+      }
+      console.log(
+        this.error,
+        this.spotName,
+        this.position.lat,
+        this.position.lng
+      )
       axios
         .post("http://127.0.0.1:8000/api/posts", {
           userId: this.$store.state.user.id,
           spotName: this.spotName,
+          spotImg: this.spotImg,
           spotLat: this.position.lat,
           spotLng: this.position.lng,
-          spotImg: this.spotImg
         })
         .then((response) => {
           console.log(response);
-          this.spotName = '',
-          this.position.lat = '',
-          this.position.lng = '',
-          this.spotImg = '',
           console.log(response.data.data)
-          this.$router.go({
-            path: this.$router.currentRoute.path,
-            force: true
-          })
+          this.$router.push('/');
+          
         })
-      this.$router.push('/');
     }
   }
 }
