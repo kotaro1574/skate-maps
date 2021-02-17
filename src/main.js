@@ -11,7 +11,7 @@ Vue.use(IconsPlugin)
 
 Vue.use(VueGoogleMaps, {
   load: {
-    key: 'AIzaSyDLkOUgBtzLG57FkxpzLH0OfOcG-pDcgUI',
+    key: '',
     libraries: 'places',
     region: 'JP',
     language: 'ja'
