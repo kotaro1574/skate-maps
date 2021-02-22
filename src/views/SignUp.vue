@@ -1,14 +1,15 @@
 <template>
   <div class="signup">
+    <Navi />
     <div class="signup-card">
-      <h1 class="signup-title">新規登録</h1>
+      <h1 class="signup-title">Sign Up</h1>
       <ValidationObserver v-slot="{ handleSubmit }">
         <form @submit.prevent="handleSubmit()">
           <ValidationProvider name="名前" rules="required" v-slot="{ errors }">
             <div class="form-group">
               <label>名前</label>
               <input type="text" class="form-control" v-model="name">
-              <span>{{ errors[0] }}</span>
+              <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
 
@@ -16,7 +17,7 @@
             <div class="form-group">
               <label>メールアドレス</label>
               <input type="email" class="form-control" v-model="email">
-              <span>{{ errors[0] }}</span>
+              <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
           
@@ -24,14 +25,14 @@
             <div class="form-group">
               <label>パスワード</label>
               <input type="password" class="form-control" v-model="password">
-              <span>{{ errors[0] }}</span>
+              <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
 
           <ValidationProvider name="地域" rules="required" v-slot="{ errors }">
             <div class="form-group">
               <label>地域</label>
-              <select class="custom-select" v-model="area" @change="onChange()">
+              <select class="custom-select" v-model="address">
                 <option value="" selected>都道府県</option>
                 <option value="北海">北海道</option>
                 <option value="青森">青森</option>
@@ -81,8 +82,7 @@
                 <option value="鹿児島">鹿児島</option>
                 <option value="沖縄">沖縄</option>
               </select>
-              <p>{{area}}</p>
-              <span>{{ errors[0] }}</span>
+              <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
 
@@ -94,29 +94,30 @@
     </div>
   </div>
 </template>
-
+    
 <script>
 import axios from "axios";
+import Navi from "../components/Navi"
 export default {
   data() {
     return {
       name: '',
       email: '',
       password: '',
-      area: '',
+      address: '',
       lat: '',
       lng: '',
-      address: ''
     }
   },
   methods: {
-    onChange() {
+    areaChange() {
       this.geocoder.geocode({
-        'area': this.area
+        'address': this.address
       },(results, status) => {
         if(status === google.maps.GeocoderStatus.OK) {
           this.lat = results[0].geometry.location.lat();
           this.lng = results[0].geometry.location.lng();
+          console.log(this.lat + this.lng);
         }
       })
     },
@@ -139,16 +140,31 @@ export default {
     this.$gmapApiPromiseLazy().then(() => {
       this.geocoder = new google.maps.Geocoder()
     })
+  },
+  watch: {
+    address(newArea) {
+      if (newArea) {
+        console.log(newArea);
+        this.areaChange();
+      }
+    }
+  },
+  components: {
+    Navi
   }
 }
 </script>
 
 <style scoped>
 .signup {
-  height: 1000px;
+  height: 100%;
+}
+.signup-title {
+  margin-bottom: 25px;
+  text-align: center;
 }
 .signup-card {
-  height: 900px;
+  height: 80%;
   width: 70%;
   margin: 100px auto;
   padding: 15px 30px 30px;
@@ -158,8 +174,7 @@ export default {
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 10px;  
 }
-.signup-title {
-  margin-bottom: 25px;
-  text-align: center;
+.error {
+  color: #fb0101;
 }
 </style>

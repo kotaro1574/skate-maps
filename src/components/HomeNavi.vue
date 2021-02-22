@@ -68,13 +68,13 @@ export default {
 
 <style scoped>
 .navi {
-  /* position: fixed; */
+  position: fixed;
   z-index: 999;
   width: 100%;
 }
 .navbar {
-  height: 60px;
-  background: rgb(0, 0, 0);
+  height: 70px;
+  background:transparent;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -85,7 +85,6 @@ export default {
   font-size: 25px;
   font-weight: bold;
   text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  color: rgb(255, 255, 255);
   margin-left: 60px;
   cursor: pointer;
 }
@@ -100,10 +99,11 @@ export default {
 .nav-item li {
   margin-right: 35px;
   font-size: 15px;
+  color: black;
   list-style: none;
-  color: rgb(255, 255, 255);
 }
 .nav-item a {
+  color: black;
   cursor: pointer;
 }
 .menu-content {
@@ -130,7 +130,7 @@ export default {
     display: block;
     width: 35px;
     height: 2px;
-    background-color: #fff;
+    background-color: #000;
     transition: 0.8s;
   }
 

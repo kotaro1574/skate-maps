@@ -1,13 +1,22 @@
 <template>
   <div class="mymap">
+    <Navi />
+    <div class="container">
+
     <div class="profile">
-      <img :src="userImg" alt="" class="profile-img">
-      <h3 class="profile-name">{{ name }} </h3>
-      <p>{{ profile }}</p>
-      <button 
-        @click="$router.push({ name: 'MyMapEdit' })"
-        v-if="$store.state.user.id == this.id"
-      >編集</button>
+      <div class="profile-right">
+        <img src="../assets/profile_icon.png" class="profile-img" alt="" v-if="!userImg">
+        <img :src="userImg" alt="" class="profile-img" v-if="userImg">
+      </div>
+      <div class="profile-left">
+        <h3 class="profile-name">{{ name }} </h3>
+        <p class="profile-text">{{ profile }}</p>
+        <div class="profile-icon">
+          <b-icon class="icon" icon="twitter"></b-icon>
+          <a href="https://www.instagram.com/ktalow1574/" target="_blank"><b-icon class="icon" icon="instagram"></b-icon></a>
+          <b-icon class="icon" icon="gear" @click="$router.push({ name: 'MyMapEdit' })" v-if="$store.state.user.id == this.id"></b-icon>
+        </div>
+      </div>
     </div>
     <GmapMap
       :center="{lat: this.lat, lng: this.lng}"
@@ -45,17 +54,19 @@
       />
     </GmapMap>
     <Cards :id="userId" @getMySpotsData="showSpotsData" />
+    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
 import Cards from "../components/Cards";
+import Navi from "../components/Navi"
 export default {
   props: ["id"],
   data() {
     return {
-      address: "",
+      address: '',
       lat: 34.39146551179752,
       lng: 132.46128012819383,
       name: '',
@@ -84,6 +95,8 @@ export default {
         this.profile = this.$store.state.user.profile
         this.userImg = this.$store.state.user.image
         this.userId = this.$store.state.user.id
+        this.lat = Number(this.$store.state.user.userLat)
+        this.lng = Number(this.$store.state.user.userLng)
       } else {
         await axios
                 .get("http://127.0.0.1:8000/api/user/"+this.id)
@@ -93,6 +106,8 @@ export default {
                   this.profile = response.data.data.profile
                   this.userImg = response.data.data.image
                   this.userId = response.data.data.id
+                  this.lat = Number(response.data.data.userLat)
+                  this.lng = Number(response.data.data.userLng)
                 })
       }
     },
@@ -113,8 +128,8 @@ export default {
         marker.position = position
         marker.text = text
         this.markers.push(marker)
-        console.log(this.markers)
       }
+      console.log(this.markers)
     }
   },
   watch: {
@@ -134,22 +149,44 @@ export default {
     this.getUser()
   },
   components: {
-    Cards
+    Cards,
+    Navi
   }
 }
 </script>
 
 <style scoped>
 .profile {
+  display: flex;
+  height: 350px;
+}
+.profile-right {
+  width: 40%;
   text-align: center;
 }
 .profile-img {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  margin: 100px 0 50px;
+  margin: 50px 0 50px;
+}
+.profile-left {
+  width: 60%;
 }
 .profile-name {
-  margin-bottom: 30px;
+  margin: 50px 50px 50px 0;
+}
+.profile-text {
+  width: 80%;
+  margin: 50px 50px 50px 0;
+}
+.profile-icon {
+  text-align: end;
+  padding-right: 50px;
+  cursor: pointer;
+}
+.icon {
+  font-size: 20px;
+  margin-left: 20px;
 }
 </style>

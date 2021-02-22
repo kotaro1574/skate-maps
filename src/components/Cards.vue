@@ -1,40 +1,122 @@
 <template>
   <div class="cards">
-    <div class="title">
-      <p>New Spots</p>
-      <p>{{ id }}</p>
-    </div>
-    <div class="cards-flex" v-if="!id">
-      <div class="card" v-for="(spotData, index) in spots" :key="index">
-        <b-card 
-          :title="spotData.spot.spotName"
-          :img-src="spotData.spot.spotImg"
-          img-height=200
-          img-alt="Image" 
-          img-top tag="article" 
-          style="max-width: 20rem;" 
-          class="mb-2" 
-        >
-          <b-card-text>Some quick example text to build on the card title and make up the bulk of the card's content. </b-card-text>
-          <b-button @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">Go somewhere</b-button>
-        </b-card>
+    <div class="home-card" v-if="!id">
+      <div class="mt-4">
+        <b-nav class="mb-4">
+          <b-nav-item active @click="newSpot()">New Spots</b-nav-item>
+          <b-nav-item @click="popularSpot()">人気 Spots</b-nav-item>
+          <b-nav-item @click="streetSpot()">Street Spots</b-nav-item>
+          <b-nav-item @click="parkSpot()">Park Spots</b-nav-item>
+          <b-nav-item @click="rainSpot()">雨 Spots</b-nav-item>
+          <b-nav-item disabled>Disabled</b-nav-item>
+        </b-nav>
+      </div>
+
+      <div class="cards-flex" v-if="type == 1">
+        <div class="card" v-for="(spotData, index) in spots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-flex" v-if="type == 2">
+        <div class="card" v-for="(spotData, index) in streetSpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-flex" v-if="type == 3">
+        <div class="card" v-for="(spotData, index) in parkSpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-flex" v-if="type == 4">
+        <div class="card" v-for="(spotData, index) in rainSpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="cards-flex" v-if="id">
-      <div class="card" v-for="(spotData, index) in mySpots" :key="index">
-        <b-card 
-          :title="spotData.spot.spotName"
-          :img-src="spotData.spot.spotImg"
-          img-height=200
-          img-alt="Image" 
-          img-top tag="article" 
-          style="max-width: 20rem;" 
-          class="mb-2" 
-        >
-          <b-card-text>Some quick example text to build on the card title and make up the bulk of the card's content. </b-card-text>
-          <b-button @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">Go somewhere</b-button>
-        </b-card>
+
+    <div class="myMap-card" v-if="id">
+      <div class="mt-4">
+        <p>My Spots{{ mySpots }}</p>
       </div>
+
+      <div class="cards-flex" v-if="type">
+        <div class="card" v-for="(spotData, index) in mySpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="badge badge-primary rain">雨スポット</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
@@ -46,7 +128,11 @@ export default {
   data() {
     return {
       spots: [],
-      mySpots: []
+      streetSpots: [],
+      parkSpots: [],
+      rainSpots: [],
+      type: 1,
+      mySpots: [],
     }
   },
   methods: {
@@ -63,13 +149,14 @@ export default {
           )
           .then((response) => {
             spot.push(response.data);
-            if (this.id) {
-              if (
-               response.data.like.user_id == this.id ||
-               response.data.spot.user_id == this.id
-             ) {
-               mySpot.push(response.data);
-             }
+            console.log(response.data);
+            if (response.data.spot.user_id == this.id) {
+              mySpot.push(response.data);
+            }
+            for (let i = 0; i < response.data.like.length; i++) {
+              if (response.data.like[i].user_id == this.id) {
+                mySpot.push(response.data);
+              }
             }
           })
       }
@@ -78,6 +165,52 @@ export default {
       console.log(this.spots);
       console.log(this.mySpots);
     },
+    newSpot() {
+      this.type = 1;
+      this.spots.sort((a, b) => {
+        return (a.spot.id < b.spot.id) ? 1 : (a.spot.id > b.spot.id) ? -1 : 0; 
+      });
+    },
+    popularSpot() {
+      this.type = 1;
+      this.spots.sort((a, b) => {
+        return (a.like.length < b.like.length) ? 1 : (a.like.length > b.like.length) ? -1 : 0; 
+      });
+    },
+    streetSpot() {
+      this.type = 2;
+      this.$emit("getStreetSpotsData", this.streetSpots);
+    },
+    parkSpot() {
+      this.type = 3
+      this.$emit("getParkSpotsData", this.parkSpots);
+    },
+    rainSpot() {
+      this.type = 4
+      this.$emit("getRainSpotsData", this.rainSpots);
+    },
+    spotsType() {
+      let street = [];
+      let park = [];
+      let rain = [];
+      for (let i = 0; i < this.spots.length; i++){
+        for (let n = 0; n < this.spots[i].type.length; n++) {
+          if (this.spots[i].type[n] == "ストリート") {
+            street.push(this.spots[i])
+          }
+          if (this.spots[i].type[n] == "パーク") {
+            park.push(this.spots[i])
+          }
+          if (this.spots[i].type[n] == "雨スポット") {
+            rain.push(this.spots[i])
+          }
+        }
+      }
+      this.streetSpots = street;
+      this.parkSpots = park;
+      this.rainSpots = rain;
+      console.log(this.streetSpots)
+    },
     sendSpotsData() {
       this.$emit("getSpotsData", this.spots);
     },
@@ -85,8 +218,16 @@ export default {
       this.$emit("getMySpotsData", this.mySpots);
     },
   },
-  beforeCreate() {
-    },
+  watch: {
+    spots(newSpot, oldSpot) {
+      if (newSpot) {
+        console.log(newSpot);
+        this.spotsType();
+      } else {
+        console.log(oldSpot);
+      }
+    }
+  },
   created() {
     this.getSpots();
   },
@@ -101,15 +242,38 @@ export default {
 
 <style scoped>
 .cards-flex {
-  height: 1100px;
+  height: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: space-around;
-  justify-content: space-around;
 }
 .card {
-  height: 500px;
+  height: 450px;
   width: 300px;
-  margin: 0;
+  margin: 10px 30px 50px;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  position: relative;
+}
+.card-img {
+  height: 250px;
+}
+.card-title {
+  margin: 15px;
+  font-weight: bold;
+}
+.card-text {
+  margin: 0 15px;
+}
+.tag-flex {
+  display: flex;
+  position: absolute;
+  left: 15px;
+  bottom: 15px;
+}
+.tags {
+  margin-right: 10px;
+}
+.tag {
+  width: 80px;
 }
 </style>

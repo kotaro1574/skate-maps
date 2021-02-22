@@ -1,12 +1,14 @@
 <template>
   <div class="spot">
+    <Navi />
+    <div class="container">
     <img :src="spotData.spot.spotImg" alt="" class="spot-img">
     <GmapMap
       :center="position"
       :zoom="12"
       :options="{streetViewControl: false}"
       map-type-id="terrain"
-      style="width: 100%; height: 500px"
+      style="width: 100%; height: 300px"
     >
     <GmapInfoWindow
         :options="infoOptions"
@@ -34,12 +36,24 @@
         @click="toggleInfoWindow()"
       />
     </GmapMap>
-    <div class="spot-content">
-      <h3 class="spot-title">{{ spotData.spot.spotName }}</h3>
-      <div>
-        <img src="../assets/heart.png" alt="" @click="fav()">
+    <div class="spot-title">
+      <div class="spot-name">{{ spotData.spot.spotName }}<span class="badge badge-primary rain" v-if="spotData.spot.rain">雨スポット</span></div>
+      <div class="bookmark">
+         <p><b-icon class="fav-icon" icon="bookmark-check" @click="favorite()" v-if="!like"></b-icon></p>
+         <p><b-icon class="fav-icon" icon="bookmark-check-fill" @click="favoriteDelete()" v-if="like"></b-icon></p>
         <p>{{ spotData.like.length }}</p>
       </div>
+    </div>
+    <div class="post-user">
+      <p class="spot-text">{{ spotData.spot.spotText }}</p>
+      <div class="user">
+        <div class="user-img">
+          <img class="user-img" :src="spotData.user.image" alt="">
+        </div>
+        <p class="user-name">{{ spotData.user.name }}</p>
+      </div>
+    </div>
+    <div class="spot-content">
       <button @click="formToggle(1)">設定</button>
       <div class="modal-form" v-if="spotEditForm">
         <div class="form-content">
@@ -104,11 +118,13 @@
         </button>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Navi from "../components/Navi";
 export default {
   props: ["id"],
   data() {
@@ -120,6 +136,7 @@ export default {
       spotComment: '',
       spotCommentImg: '',
       spotCommentForm: false,
+      like: false,
       position: {
         lat: '',
         lng: ''
@@ -142,6 +159,7 @@ export default {
           console.log(response)
           this.spotData = response.data;
           console.log(this.spotData)
+          this.favoriteData();
         })
     },
     conversion() {
@@ -153,44 +171,39 @@ export default {
       this.infoWindowPos = this.position;
       this.infoWinOpen = true;
     },
-    fav() {
+    favoriteData() {
       const result = this.spotData.like.some((value) => {
         return value.user_id == this.$store.state.user.id;
       });
-      console.log(result);
       if (result) {
-        this.spotData.like.forEach((element) => {
-          if (element.user_id == this.$store.state.user.id) {
-            axios({
-              method: "delete",
-              url: "http://127.0.0.1:8000/api/like",
-              data: {
-                post_id: this.id,
-                user_id: this.$store.state.user.id
-              },
-            }).then((response) => {
-              console.log(response);
-              this.$router.go({
-              path: this.$router.currentRoute.path,
-              force: true,
-            });
-            })
-          }
-        })
-      } else {
-        axios
-          .post("http://127.0.0.1:8000/api/like", {
+        this.like = true;
+      }
+    },
+    favoriteDelete() {
+        axios({
+          method: "delete",
+          url: "http://127.0.0.1:8000/api/like",
+          data: {
             post_id: this.id,
             user_id: this.$store.state.user.id
-          })
-          .then((response) => {
-            console.log(response)
-            this.$router.go({
-              path: this.$router.currentRoute.path,
-              force: true,
-            });
-          })
-      }
+          },
+        }).then((response) => {
+          console.log(response);
+          this.like = false;
+          this.spotShow()
+        })
+    },
+    favorite() {
+      axios
+        .post("http://127.0.0.1:8000/api/like", {
+          post_id: this.id,
+          user_id: this.$store.state.user.id
+        })
+        .then((response) => {
+          console.log(response);
+          this.like = true;
+          this.spotShow()
+        })
     },
     formToggle(i) {
       if(i == 1) {
@@ -306,6 +319,9 @@ export default {
   },
   updated() {
     this.conversion();
+  },
+  components: {
+    Navi
   }
 }
 </script>
@@ -313,8 +329,60 @@ export default {
 <style scoped>
 .spot-img {
   width: 100%;
-  height: 1000px;
+  height: 500px;
 }
+.spot-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.spot-name {
+  margin: 30px;
+  font-size: 25px;
+  font-weight: bold;
+}
+.spot-name .rain {
+  margin: 30px;
+  font-size: 13px;
+}
+.bookmark {
+  margin: 20px 100px;
+  display: flex;
+}
+.bookmark p {
+  margin: 0 5px;
+  font-size: 20px;
+}
+.fav-icon {
+  cursor: pointer;
+}
+.post-user {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.spot-text {
+  width: 60%; 
+  margin: 20px 0 0 15%;
+  padding: 0 0 15px 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgb(197, 197, 197);
+}
+.user {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40%;
+}
+.user-img{ 
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+.user-name {
+  margin: 0 10px;
+}
+
 .preview-img {
   width: 80%;
   height: 300px;

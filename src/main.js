@@ -9,9 +9,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 
+console.log('これ２', process.env.VUE_APP_GOOGLE_MAP_API);
 Vue.use(VueGoogleMaps, {
   load: {
-    key: '',
+    key: process.env.VUE_APP_GOOGLE_MAP_API,
     libraries: 'places',
     region: 'JP',
     language: 'ja'

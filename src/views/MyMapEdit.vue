@@ -1,17 +1,42 @@
 <template>
   <div class="mymapedit">
+    <Navi />
     <div class="mymapedit-card">
       <h1 class="mymapedit-title">プロフィール編集</h1>
-      <div v-if="profileImg">
-        <button @click="deletePreview()">X</button>
+      <div v-if="profileImg" class="profile-image">
         <img :src="profileImg" class="profile-img">
+        <div class="img-delete" @click="deletePreview()">X</div>
       </div>
-      <div class="form">
-        <input placeholder="ユーザーネーム" type="text" v-model="name" />
-        <input placeholder="プロフィール" type="text" v-model="profile" />
-        <p><input type="file" name="file" @change="confirmImage"></p>
+      <ValidationObserver v-slot="{ handleSubmit }">
+        <form @submit.prevent="handleSubmit()">
+
+          <ValidationProvider name="プロフィール写真" rules="image" v-slot="{ errors }">
+            <div class="form-group">
+              <label>プロフィール写真</label>
+              <input type="file" class="form-control" @change="confirmImage">
+              <span class="error">{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          
+          <ValidationProvider name="名前" rules="max:255" v-slot="{ errors }">
+            <div class="form-group">
+              <label>名前</label>
+              <input type="text" class="form-control" v-model="name">
+              <span class="error">{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          
+          <ValidationProvider name="プロフィール" rules="max:600" v-slot="{ errors }">
+            <div class="form-group">
+              <label>プロフィール</label>
+              <textarea class="form-control" v-model="profile" id="" cols="30" rows="5"></textarea>
+              <span class="error">{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+
+        <label>マップの位置</label>
         <GmapMap
-          :center="{lat: 34.39146551179752, lng: 132.46128012819383}"
+          :center="{lat: lat, lng: lng}"
           :zoom="12"
           :options="{streetViewControl: false}"
           map-type-id="terrain"
@@ -24,17 +49,23 @@
             :draggable="true"
           />
         </GmapMap>
-        <button type="submit" @click="userEdit()">編集</button>
-      </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="userEdit()">編集</button>
+          </div>
+        </form>
+      </ValidationObserver>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Navi from "../components/Navi"
 export default {
   data() {
     return {
+      lat: Number(this.$store.state.user.userLat),
+      lng: Number(this.$store.state.user.userLng),
       name: '',
       profile: '',
       position: {
@@ -82,29 +113,51 @@ export default {
         });
       })
     }
+  },
+  components: {
+    Navi
   }
 }
 </script>
 
 <style scoped>
 .mymapedit {
-  height: 700px;
+  height: 100%;
 }
 .mymapedit-card {
-  height: 500px;
+  height: 80%;
   width: 70%;
   margin: 100px auto;
-  border: 1px solid #000;
-  border-radius: 5px;
+  padding: 15px 30px 30px;
+  background: #FFFFFF;
+  border: 1px solid #FFFFFF;
+  box-sizing: border-box;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px; 
 }
 .mymapedit-title {
-  margin-top: 10px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.profile-image {
+  position: relative;
+
   text-align: center;
 }
 .profile-img {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  margin: 100px 0 50px;
+  margin: 15px;
+}
+.img-delete {
+  position: absolute;
+  right: 40%;
+  bottom: 15%;
+  cursor: pointer;
+}
+.error {
+  color: #fb0101;
 }
 </style>
