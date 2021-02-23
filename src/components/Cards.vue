@@ -99,10 +99,17 @@
 
     <div class="myMap-card" v-if="id">
       <div class="mt-4">
-        <p>My Spots{{ mySpots }}</p>
+        <b-nav class="mb-4">
+          <b-nav-item active @click="newSpot()">My Spots</b-nav-item>
+          <b-nav-item @click="popularSpot()">人気 Spots</b-nav-item>
+          <b-nav-item @click="streetSpot()">Street Spots</b-nav-item>
+          <b-nav-item @click="parkSpot()">Park Spots</b-nav-item>
+          <b-nav-item @click="rainSpot()">雨 Spots</b-nav-item>
+          <b-nav-item disabled>Disabled</b-nav-item>
+        </b-nav>
       </div>
 
-      <div class="cards-flex" v-if="type">
+      <div class="cards-flex" v-if="type == 1">
         <div class="card" v-for="(spotData, index) in mySpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
             <img class="card-img" :src="spotData.spot.spotImg" alt="">
@@ -113,7 +120,76 @@
           <div class="card-text">
             {{ spotData.spot.spotText }}
           </div>
-          <div class="badge badge-primary rain">雨スポット</div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-flex" v-if="type == 2">
+        <div class="card" v-for="(spotData, index) in myStreetSpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-flex" v-if="type == 3">
+        <div class="card" v-for="(spotData, index) in myParkSpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-flex" v-if="type == 4">
+        <div class="card" v-for="(spotData, index) in myRainSpots" :key="index">
+          <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
+            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+          </div>
+          <div class="card-title">
+            {{ spotData.spot.spotName }}
+          </div>
+          <div class="card-text">
+            {{ spotData.spot.spotText }}
+          </div>
+          <div class="tag-flex">
+            <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+              <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+              <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+              <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -133,6 +209,9 @@ export default {
       rainSpots: [],
       type: 1,
       mySpots: [],
+      myStreetSpots: [],
+      myParkSpots: [],
+      myRainSpots: [],
     }
   },
   methods: {
@@ -150,11 +229,16 @@ export default {
           .then((response) => {
             spot.push(response.data);
             console.log(response.data);
-            if (response.data.spot.user_id == this.id) {
-              mySpot.push(response.data);
-            }
             for (let i = 0; i < response.data.like.length; i++) {
               if (response.data.like[i].user_id == this.id) {
+                console.log(response.data);
+                mySpot.push(response.data);
+              }
+            }
+            console.log(mySpot)
+            if (!mySpot.some(value => value.spot.id == response.data.spot.id)) {
+              if (response.data.spot.user_id == this.id) {
+                console.log(response.data, 'これ')
                 mySpot.push(response.data);
               }
             }
@@ -167,27 +251,51 @@ export default {
     },
     newSpot() {
       this.type = 1;
-      this.spots.sort((a, b) => {
-        return (a.spot.id < b.spot.id) ? 1 : (a.spot.id > b.spot.id) ? -1 : 0; 
-      });
+      if (this.id) {
+        this.mySpots.sort((a, b) => {
+          return (a.spot.id < b.spot.id) ? 1 : (a.spot.id > b.spot.id) ? -1 : 0; 
+        });
+      } else {
+        this.spots.sort((a, b) => {
+          return (a.spot.id < b.spot.id) ? 1 : (a.spot.id > b.spot.id) ? -1 : 0; 
+        });
+      }
     },
     popularSpot() {
       this.type = 1;
-      this.spots.sort((a, b) => {
-        return (a.like.length < b.like.length) ? 1 : (a.like.length > b.like.length) ? -1 : 0; 
-      });
+      if (this.id) {
+        this.mySpots.sort((a, b) => {
+          return (a.like.length < b.like.length) ? 1 : (a.like.length > b.like.length) ? -1 : 0; 
+        });
+      } else {
+        this.spots.sort((a, b) => {
+          return (a.like.length < b.like.length) ? 1 : (a.like.length > b.like.length) ? -1 : 0; 
+        });
+      }
     },
     streetSpot() {
       this.type = 2;
-      this.$emit("getStreetSpotsData", this.streetSpots);
+      if (this.id) {
+        this.$emit("getMyStreetSpotsData", this.myStreetSpots);
+      } else {
+        this.$emit("getStreetSpotsData", this.streetSpots);
+      }
     },
     parkSpot() {
-      this.type = 3
-      this.$emit("getParkSpotsData", this.parkSpots);
+      this.type = 3;
+      if (this.id) {
+        this.$emit("getMyParkSpotsData", this.myParkSpots);
+      } else {
+        this.$emit("getParkSpotsData", this.parkSpots);
+      }
     },
     rainSpot() {
-      this.type = 4
-      this.$emit("getRainSpotsData", this.rainSpots);
+      this.type = 4;
+      if (this.id) {
+        this.$emit("getMyRainSpotsData", this.myRainSpots);
+      } else {
+        this.$emit("getRainSpotsData", this.rainSpots);
+      }
     },
     spotsType() {
       let street = [];
@@ -211,6 +319,28 @@ export default {
       this.rainSpots = rain;
       console.log(this.streetSpots)
     },
+    mySpotsType() {
+      let myStreet = [];
+      let myPark = [];
+      let myRain = [];
+      for (let i = 0; i < this.mySpots.length; i++){
+        for (let n = 0; n < this.mySpots[i].type.length; n++) {
+          if (this.mySpots[i].type[n] == "ストリート") {
+            myStreet.push(this.mySpots[i])
+          }
+          if (this.mySpots[i].type[n] == "パーク") {
+            myPark.push(this.mySpots[i])
+          }
+          if (this.mySpots[i].type[n] == "雨スポット") {
+            myRain.push(this.mySpots[i])
+          }
+        }
+      }
+      this.myStreetSpots = myStreet;
+      this.myParkSpots = myPark;
+      this.myRainSpots = myRain;
+      console.log(this.streetSpots)
+    },
     sendSpotsData() {
       this.$emit("getSpotsData", this.spots);
     },
@@ -219,12 +349,14 @@ export default {
     },
   },
   watch: {
-    spots(newSpot, oldSpot) {
+    spots(newSpot) {
       if (newSpot) {
-        console.log(newSpot);
         this.spotsType();
-      } else {
-        console.log(oldSpot);
+      }
+    },
+    mySpots(newMySpot) {
+      if (newMySpot) {
+        this.mySpotsType();
       }
     }
   },

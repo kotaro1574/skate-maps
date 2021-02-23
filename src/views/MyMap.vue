@@ -53,7 +53,13 @@
         @click="toggleInfoWindow(m.position, m.text.cardName, m.text.cardImg, m.text.cardId)"
       />
     </GmapMap>
-    <Cards :id="userId" @getMySpotsData="showSpotsData" />
+    <Cards 
+      :id="userId" 
+      @getMySpotsData="showMySpotsData"
+      @getMyStreetSpotsData="showMyStreetSpotsData"
+      @getMyParkSpotsData="showMyParkSpotsData"
+      @getMyRainSpotsData="showMyRainSpotsData"
+     />
     </div>
   </div>
 </template>
@@ -67,8 +73,8 @@ export default {
   data() {
     return {
       address: '',
-      lat: 34.39146551179752,
-      lng: 132.46128012819383,
+      lat: '',
+      lng: '',
       name: '',
       profile: '',
       userImg: '',
@@ -76,7 +82,10 @@ export default {
       cardName: '',
       cardImg: '',
       cardId: '',
-      spots: [],
+      mySpots: [],
+      myStreetSpots: [],
+      myParkSpots: [],
+      myRainSpots: [],
       markers: [],
       infoOptions: {
         pixelOffset: {
@@ -111,36 +120,112 @@ export default {
                 })
       }
     },
-    showSpotsData(spots) {
-      this.spots = spots;
+    showMySpotsData(mySpots) {
+      this.mySpots = mySpots;
       console.log(this.spots)
     },
-    conversion() {
-      for (let i = 0; i < this.spots.length; i++) {
+    showMyStreetSpotsData(myStreetSpots) {
+      this.myStreetSpots = myStreetSpots;
+      console.log(this.myStreetSpots);
+    },
+    showMyParkSpotsData(myParkSpots) {
+      this.myParkSpots = myParkSpots;
+      console.log(this.myParkSpots);
+    },
+    showMyRainSpotsData(myRainSpots) {
+      this.myRainSpots = myRainSpots;
+      console.log(this.myRainSpots);
+    },
+    mySpotsConversion() {
+      this.markers = [];
+      for (let i = 0; i < this.mySpots.length; i++) {
         const marker = {}
         const position = {}
         const text  = {}
-        position.lat = Number(this.spots[i].spot.spotLat)
-        position.lng = Number(this.spots[i].spot.spotLng)
-        text.cardName = this.spots[i].spot.spotName
-        text.cardImg = this.spots[i].spot.spotImg
-        text.cardId = this.spots[i].spot.id
+        position.lat = Number(this.mySpots[i].spot.spotLat)
+        position.lng = Number(this.mySpots[i].spot.spotLng)
+        text.cardName = this.mySpots[i].spot.spotName
+        text.cardImg = this.mySpots[i].spot.spotImg
+        text.cardId = this.mySpots[i].spot.id
         marker.position = position
         marker.text = text
         this.markers.push(marker)
       }
       console.log(this.markers)
-    }
+    },
+    myStreetSpotsConversion() {
+      this.markers = [];
+      for (let i = 0; i < this.myStreetSpots.length; i++) {
+        const marker = {}
+        const position = {}
+        const text  = {}
+        position.lat = Number(this.myStreetSpots[i].spot.spotLat)
+        position.lng = Number(this.myStreetSpots[i].spot.spotLng)
+        text.cardName = this.myStreetSpots[i].spot.spotName
+        text.cardImg = this.myStreetSpots[i].spot.spotImg
+        text.cardId = this.myStreetSpots[i].spot.id
+        marker.position = position
+        marker.text = text
+        this.markers.push(marker)
+      }
+      console.log(this.markers)
+    },
+    myParkSpotsConversion() {
+      this.markers = [];
+      for (let i = 0; i < this.myParkSpots.length; i++) {
+        const marker = {}
+        const position = {}
+        const text  = {}
+        position.lat = Number(this.myParkSpots[i].spot.spotLat)
+        position.lng = Number(this.myParkSpots[i].spot.spotLng)
+        text.cardName = this.myParkSpots[i].spot.spotName
+        text.cardImg = this.myParkSpots[i].spot.spotImg
+        text.cardId = this.myParkSpots[i].spot.id
+        marker.position = position
+        marker.text = text
+        this.markers.push(marker)
+      }
+      console.log(this.markers)
+    },
+    myRainSpotsConversion() {
+      this.markers = [];
+      for (let i = 0; i < this.myRainSpots.length; i++) {
+        const marker = {}
+        const position = {}
+        const text  = {}
+        position.lat = Number(this.myRainSpots[i].spot.spotLat)
+        position.lng = Number(this.myRainSpots[i].spot.spotLng)
+        text.cardName = this.myRainSpots[i].spot.spotName
+        text.cardImg = this.myRainSpots[i].spot.spotImg
+        text.cardId = this.myRainSpots[i].spot.id
+        marker.position = position
+        marker.text = text
+        this.markers.push(marker)
+      }
+      console.log(this.markers)
+    },
   },
   watch: {
-    spots(newSpots, oldSpots) {
-      if (newSpots) {
-        console.log(newSpots)
-        this.conversion()
-      } else {
-        console.log(oldSpots)
+    mySpots(newMySpots) {
+      if (newMySpots) {
+        this.mySpotsConversion();
       }
-    }
+    },
+    myStreetSpots(newMyStreetSpots) {
+      if (newMyStreetSpots) {
+        this.myStreetSpotsConversion();
+      }
+    },
+    myParkSpots(newMyParkSpots) {
+      if (newMyParkSpots) {
+        this.myParkSpotsConversion();
+      }
+    },
+    myRainSpots(newMyRainSpots) {
+      if (newMyRainSpots) {
+        this.myRainSpotsConversion();
+      }
+    },
   },
   created() {
     this.getUser()
