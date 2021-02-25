@@ -7,6 +7,7 @@ import SignUp from '../views/SignUp.vue'
 import MyMap from '../views/MyMap.vue'
 import MyMapEdit from '../views/MyMapEdit.vue'
 import Spot from '../views/Spot.vue'
+import SpotEdit from '../views/SpotEdit.vue'
 import Post from '../views/Post.vue'
 
 Vue.use(VueRouter)
@@ -49,6 +50,15 @@ const routes = [
     name: 'Spot',
     component: Spot,
     props: true
+  },
+  {
+    path: '/spot/:id/spotedit',
+    name: 'SpotEdit',
+    component: SpotEdit,
+    props: true,
+    meta: {
+      requresAuth: true,
+    }
   },
   {
     path: '/post',

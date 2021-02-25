@@ -1,68 +1,83 @@
 <template>
   <div class="mymap">
     <Navi />
+    
     <div class="container">
-
-    <div class="profile">
-      <div class="profile-right">
-        <img src="../assets/profile_icon.png" class="profile-img" alt="" v-if="!userImg">
-        <img :src="userImg" alt="" class="profile-img" v-if="userImg">
-      </div>
-      <div class="profile-left">
-        <h3 class="profile-name">{{ name }} </h3>
-        <p class="profile-text">{{ profile }}</p>
-        <div class="profile-icon">
-          <b-icon class="icon" icon="twitter"></b-icon>
-          <a href="https://www.instagram.com/ktalow1574/" target="_blank"><b-icon class="icon" icon="instagram"></b-icon></a>
-          <b-icon class="icon" icon="gear" @click="$router.push({ name: 'MyMapEdit' })" v-if="$store.state.user.id == this.id"></b-icon>
+      <div class="profile-container">
+        <div class="profile">
+          <div class="profile-right">
+            <img src="../assets/profile_icon.png" class="profile-img" alt="" v-if="!userImg">
+            <img :src="userImg" alt="" class="profile-img" v-if="userImg">
+          </div>
+          <div class="profile-left">
+            <h3 class="profile-name">{{ name }} </h3>
+            <p class="profile-text">{{ profile }}</p>
+            <div class="profile-icon">
+              <b-icon class="icon" icon="twitter"></b-icon>
+              <a href="https://www.instagram.com/ktalow1574/" target="_blank"><b-icon class="icon" icon="instagram"></b-icon></a>
+              <b-icon class="icon" icon="gear" @click="$router.push({ name: 'MyMapEdit' })" v-if="$store.state.user.id == this.id"></b-icon>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-    <GmapMap
-      :center="{lat: this.lat, lng: this.lng}"
-      :zoom="9"
-      :options="{streetViewControl: false}"
-      map-type-id="terrain"
-      style="width: 100%; height: 500px"
-    >
-      <GmapInfoWindow
-        :options="infoOptions"
-        :position="infoWindowPos"
-        :opened="infoWinOpen"
-        @closeclick="infoWinOpen=false"
-      >
-      <div class="card" @click="$router.push({ path: '/spot/' + cardId, params: { id: cardId } })">
-        <b-card 
-          :title="cardName"
-          :img-src="cardImg"
-          img-height=200
-          img-alt="Image" 
-          img-top tag="article" 
-          style="max-width: 20rem;" 
-          class="mb-2" 
+        <div class="weather-area" v-if="$store.state.user.id == this.id">
+          <a class="weather-button" @click="toggleWeather()">myWeather<img :src="dailyWeathers[0].icon" alt=""></a>
+        </div>
+        <div class="weather mb-4" v-if="weather">
+          <div class="daily" v-for="(weather, index) in dailyWeathers" :key="index">
+            <div class="weather-day">{{ weather.day }}</div>
+            <div class="weather-icon"><img :src="weather.icon" alt="" class="weather-icon"></div>
+            <div class="weather-main">{{ weather.main }}</div>
+            <div class="weather-description">({{ weather.description }})</div>
+          </div>
+        </div>
+        <GmapMap
+          :center="{lat: lat, lng: lng}"
+          :zoom="9"
+          :options="{streetViewControl: false}"
+          map-type-id="terrain"
+          style="width: 100%; height: 500px"
         >
-        </b-card>
+          <GmapInfoWindow
+            :options="infoOptions"
+            :position="infoWindowPos"
+            :opened="infoWinOpen"
+            @closeclick="infoWinOpen=false"
+          >
+          <div class="card" @click="$router.push({ path: '/spot/' + cardId, params: { id: cardId } })">
+            <b-card 
+              :title="cardName"
+              :img-src="cardImg"
+              img-height=200
+              img-alt="Image" 
+              img-top tag="article" 
+              style="max-width: 20rem;" 
+              class="mb-2" 
+            >
+            </b-card>
+          </div>
+          </GmapInfoWindow>
+          <GmapMarker
+            :key="index"
+            v-for="(m, index) in markers"
+            :position="m.position"
+            :clickable="true"
+            :draggable="true"
+            @click="toggleInfoWindow(m.position, m.text.cardName, m.text.cardImg, m.text.cardId)"
+          />
+        </GmapMap>
       </div>
-      </GmapInfoWindow>
-      <GmapMarker
-        :key="index"
-        v-for="(m, index) in markers"
-        :position="m.position"
-        :clickable="true"
-        :draggable="true"
-        @click="toggleInfoWindow(m.position, m.text.cardName, m.text.cardImg, m.text.cardId)"
+      <Cards 
+        :id="userId" 
+        @getMySpotsData="showMySpotsData"
+        @getMyStreetSpotsData="showMyStreetSpotsData"
+        @getMyParkSpotsData="showMyParkSpotsData"
+        @getMyRainSpotsData="showMyRainSpotsData"
       />
-    </GmapMap>
-    <Cards 
-      :id="userId" 
-      @getMySpotsData="showMySpotsData"
-      @getMyStreetSpotsData="showMyStreetSpotsData"
-      @getMyParkSpotsData="showMyParkSpotsData"
-      @getMyRainSpotsData="showMyRainSpotsData"
-     />
     </div>
   </div>
 </template>
+
+
 
 <script>
 import axios from "axios";
@@ -94,7 +109,10 @@ export default {
         }
       },
       infoWindowPos: null,
-      infoWinOpen: false
+      infoWinOpen: false,
+      weather: false,
+      dailyWeatherData: '',
+      dailyWeathers: [],
     }
   },
   methods: {
@@ -106,6 +124,7 @@ export default {
         this.userId = this.$store.state.user.id
         this.lat = Number(this.$store.state.user.userLat)
         this.lng = Number(this.$store.state.user.userLng)
+        this.getMyWeater();
       } else {
         await axios
                 .get("http://127.0.0.1:8000/api/user/"+this.id)
@@ -119,6 +138,32 @@ export default {
                   this.lng = Number(response.data.data.userLng)
                 })
       }
+    },
+     async getMyWeater() {
+      const item = await axios.get(
+          `http://api.openweathermap.org/data/2.5/onecall?lat=${this.lat}&lon=${this.lng}&cnt=6&lang=ja&appid=${process.env.VUE_APP_WEATHER}`
+        );
+        console.log(item);
+        this.dailyWeatherData = item.data.daily;
+        for (let i = 0; i < this.dailyWeatherData.length; i++) {
+          let weather = {};
+          const icon = `http://openweathermap.org/img/w/${this.dailyWeatherData[i].weather[0].icon}.png`
+          const main = this.dailyWeatherData[i].weather[0].main;
+          const description = this.dailyWeatherData[i].weather[0].description;
+          const date = new Date(this.dailyWeatherData[i].dt * 1000);
+          const month = date.getMonth() + 1;
+          const Week = new Array('(日)', '(月)', '(火)', '(水)', '(木)', '(金)', '(土)');
+          const day = month + '/' + date.getDate() + Week[date.getDay()];
+          weather.icon = icon;
+          weather.main = main;
+          weather.description = description;
+          weather.day = day;
+          this.dailyWeathers.push(weather)
+        }
+        console.log(this.dailyWeathers);
+    },
+    toggleWeather() {
+      this.weather = !this.weather;
     },
     showMySpotsData(mySpots) {
       this.mySpots = mySpots;
@@ -227,23 +272,28 @@ export default {
       }
     },
   },
+
   created() {
-    this.getUser()
-  },
-  updated() {
     this.getUser()
   },
   components: {
     Cards,
     Navi
-  }
+  },
+  
 }
 </script>
 
 <style scoped>
+.container {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+.profile-container {
+  padding: 20px 5%;
+}
 .profile {
   display: flex;
-  height: 350px;
+  height: 20%;
 }
 .profile-right {
   width: 40%;
@@ -273,5 +323,33 @@ export default {
 .icon {
   font-size: 20px;
   margin-left: 20px;
+}
+.weather-button {
+  color: #000;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+}
+.weather-button:hover {
+  color: rgb(55, 101, 255);
+}
+.weather {
+  display: flex;
+  justify-content: space-around;
+}
+.weather-day {
+  text-align: center;
+}
+.weather-icon {
+  height: 70px;
+}
+.weather-main {
+  text-align: center;
+  font-weight: bold;
+}
+.weather-description {
+  text-align: center;
+  font-size: 6px;
+  font: #727272;
 }
 </style>

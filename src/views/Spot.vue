@@ -2,13 +2,32 @@
   <div class="spot">
     <Navi />
     <div class="container">
-    <img :src="spotData.spot.spotImg" alt="" class="spot-img">
+      <div class="img-wrap">
+        <img :src="spotData.spot.spotImg" alt="" class="spot-img">
+      </div>
+      <div class="toggle-area">
+        <div class="weather-area">
+          <a class="weather-button" @click="toggleWeather()">weather<img :src="dailyWeathers[0].icon" alt=""></a>
+        </div>
+        <div class="map-area">
+          <a class="map-button" @click="toggleMap()">Map <img src="../assets/google_map_pin.png" class="map-button-imag" alt=""></a>
+        </div>
+      </div>
+      <div class="weather mt-4 mb-4" v-if="weather">
+        <div class="daily" v-for="(weather, index) in dailyWeathers" :key="index">
+          <div class="weather-day">{{ weather.day }}</div>
+          <div class="weather-icon"><img :src="weather.icon" alt="" class="weather-icon"></div>
+          <div class="weather-main">{{ weather.main }}</div>
+          <div class="weather-description">({{ weather.description }})</div>
+        </div>
+      </div>
     <GmapMap
       :center="position"
       :zoom="12"
       :options="{streetViewControl: false}"
       map-type-id="terrain"
-      style="width: 100%; height: 300px"
+      class="map"
+      v-if="map"
     >
     <GmapInfoWindow
         :options="infoOptions"
@@ -37,7 +56,16 @@
       />
     </GmapMap>
     <div class="spot-title">
-      <div class="spot-name">{{ spotData.spot.spotName }}<span class="badge badge-primary rain" v-if="spotData.spot.rain">雨スポット</span></div>
+      <div class="spot-info">
+        <div class="spot-name">{{ spotData.spot.spotName }}</div>
+        <div class="tag-flex">
+          <div class="tags" v-for="(type, index) in spotData.type" :key="index"> 
+            <div class="badge badge-danger tag" v-if="type == 'ストリート'">{{ type }}</div>
+            <div class="badge badge-success tag" v-if="type == 'パーク'">{{ type }}</div>
+            <div class="badge badge-primary tag" v-if="type == '雨スポット'">{{ type }}</div>
+          </div>
+        </div>
+      </div>
       <div class="bookmark">
          <p><b-icon class="fav-icon" icon="bookmark-check" @click="favorite()" v-if="!like"></b-icon></p>
          <p><b-icon class="fav-icon" icon="bookmark-check-fill" @click="favoriteDelete()" v-if="like"></b-icon></p>
@@ -46,76 +74,34 @@
     </div>
     <div class="post-user">
       <p class="spot-text">{{ spotData.spot.spotText }}</p>
-      <div class="user">
-        <div class="user-img">
-          <img class="user-img" :src="spotData.user.image" alt="">
-        </div>
+      <div class="user" @click="$router.push({ path: '/mymap/'+ spotData.user.id, params: { id: spotData.user.id } })">
+        <img class="user-img" src="../assets/profile_icon.png" alt="" v-if="!spotData.user.image">
+        <img class="user-img" :src="spotData.user.image" alt="" v-if="spotData.user.image">
         <p class="user-name">{{ spotData.user.name }}</p>
+      </div>
+      <div class="setting">
+        <b-icon class="setting-icon" icon="gear" @click="$router.push({ name: 'SpotEdit' })" v-if="$store.state.user.id == spotData.spot.user_id"></b-icon>
       </div>
     </div>
     <div class="spot-content">
-      <button @click="formToggle(1)">設定</button>
-      <div class="modal-form" v-if="spotEditForm">
-        <div class="form-content">
-          <p><input placeholder="スポットの名前" type="text" v-model="spotName" /></p>
-          <p><input type="file" @change="confirmImage" /></p>
-          <div v-if="spotImg">
-            <button @click="deletePreview()">X</button>
-            <img :src="spotImg" class="preview-img">
+      <div class="comment-area" v-for="(comments, index) in showComments" :key="index">
+        <div class="post-user">
+          <p class="spot-text">{{ comments.comment.comment }}</p>
+          <div class="user" @click="$router.push({ path: '/mymap/'+ comments.commentUser.id, params: { id: comments.commentUser.id } })">
+            <img :src="comments.commentUser.image" class="user-img" v-if="comments.commentUser.image">
+            <img src="../assets/profile_icon.png" alt="" v-if="!comments.commentUser.image">
+            <p class="user-name">{{ comments.commentUser.name }}</p>
           </div>
-          <GmapMap
-            :center="position"
-            :zoom="12"
-            :options="{streetViewControl: false}"
-            map-type-id="terrain"
-            style="width: 100%; height: 200px"
-            @click="place($event)"
-          >
-            <GmapMarker
-              :position="position"
-              :clickable="true"
-              :draggable="true"
-            />
-          </GmapMap>
-          <button @click="spotEdit()">編集する</button>
-          <button @click="spotDelete()">削除</button>
-          <button @click="formToggle(1)">閉じる</button>
+          <div class="comment-delete">
+            <img class="delete-button" src="../assets/delete.png" alt="" v-if="$store.state.user.id == comments.commentUser.id" @click="commentDelete(comments.comment.id)">
+          </div>
         </div>
       </div>
-      <button @click="formToggle(2)">コメント</button>
-      <div class="modal-form" v-if="spotCommentForm">
-        <div class="form-content">
-          <p><input placeholder="コメント" type="text" v-model="spotComment" /></p>
-          <p><input type="file" @change="confirmImage" /></p>
-          <div v-if="spotCommentImg">
-            <button @click="deletePreview()">X</button>
-            <img :src="spotCommentImg" class="preview-img">
-          </div>
-          <button @click="commentPost()">コメントを投稿する</button>
-          <button @click="formToggle(2)">閉じる</button>
+      <div class="comment-form">
+        <p class="spot-text"><input placeholder="+ spotの情報を追加しよう" type="text" v-model="spotComment" /></p>
+        <div class="comment-button">
+          <button @click="commentPost()" type="button" class="btn btn-primary">投稿</button>
         </div>
-      </div>
-      
-      <div class="comment-area" v-for="(comments, index) in spotData.comments" :key="index">
-        <div class="comment-user">
-          <img 
-            :src="comments.commentUser.image"
-            class="profile-img"
-            @click="$router.push({ path: '/mymap/'+ comments.commentUser.id, params: { id: comments.commentUser.id } })"
-          >
-          <p>{{ comments.commentUser.name }}</p>
-        </div>
-        <p class="comment-text">{{ comments.comment.comment }}</p>
-        <div class="comment-image">
-          <img :src="comments.comment.commentImg" class="comment-img">
-        </div>
-        <button 
-          class="comment-delete" 
-          v-if="$store.state.user.id == comments.commentUser.id"
-          @click="commentDelete(comments.comment.id)"
-        >
-          削除
-        </button>
       </div>
     </div>
     </div>
@@ -132,10 +118,9 @@ export default {
       spotData: '',
       spotName: '',
       spotImg: '',
-      spotEditForm: false,
+      map: false,
+      showComments: '',
       spotComment: '',
-      spotCommentImg: '',
-      spotCommentForm: false,
       like: false,
       position: {
         lat: '',
@@ -148,7 +133,10 @@ export default {
         }
       },
       infoWindowPos: null,
-      infoWinOpen: false
+      infoWinOpen: false,
+      weather: false,
+      dailyWeatherData: '',
+      dailyWeathers: [],
     }
   },
   methods: {
@@ -158,6 +146,7 @@ export default {
         .then((response) => {
           console.log(response)
           this.spotData = response.data;
+          this.showComments = response.data.comments
           console.log(this.spotData)
           this.favoriteData();
         })
@@ -165,7 +154,39 @@ export default {
     conversion() {
       this.position.lat = Number(this.spotData.spot.spotLat)
       this.position.lng = Number(this.spotData.spot.spotLng)
-      console.log(this.position)
+        console.log(this.position)
+    },
+    async getSpotWeater() {
+      const item = await axios.get(
+          `http://api.openweathermap.org/data/2.5/onecall?lat=${this.position.lat}&lon=${this.position.lng}&cnt=6&lang=ja&appid=${process.env.VUE_APP_WEATHER}`
+        );
+        console.log(item);
+        this.dailyWeatherData = [];
+        this.dailyWeathers = [];
+        this.dailyWeatherData = item.data.daily;
+        for (let i = 0; i < this.dailyWeatherData.length; i++) {
+          let weather = {};
+          const icon = `http://openweathermap.org/img/w/${this.dailyWeatherData[i].weather[0].icon}.png`
+          const main = this.dailyWeatherData[i].weather[0].main;
+          const description = this.dailyWeatherData[i].weather[0].description;
+          const date = new Date(this.dailyWeatherData[i].dt * 1000);
+          const month = date.getMonth() + 1;
+          const Week = new Array('(日)', '(月)', '(火)', '(水)', '(木)', '(金)', '(土)');
+          const day = month + '/' + date.getDate() + Week[date.getDay()];
+          weather.icon = icon;
+          weather.main = main;
+          weather.description = description;
+          weather.day = day;
+          this.dailyWeathers.push(weather)
+        }
+        console.log(this.dailyWeathers);
+
+    },
+    toggleMap() {
+      this.map = !this.map;
+    },
+    toggleWeather() {
+      this.weather = !this.weather;
     },
     toggleInfoWindow() {
       this.infoWindowPos = this.position;
@@ -205,44 +226,6 @@ export default {
           this.spotShow()
         })
     },
-    formToggle(i) {
-      if(i == 1) {
-        this.spotEditForm = !this.spotEditForm;
-      } else if (i == 2) {
-        this.spotCommentForm = !this.spotCommentForm;
-      }
-    },
-    confirmImage(e) {
-      const image = e.target.files[0];
-      const reader = new FileReader();
-      reader.readAsDataURL(image);
-
-      if (this.spotEditForm) {
-        reader.onload = e => {
-          this.spotImg = e.target.result;
-          console.log(this.spotImg);
-        }
-      } else if (this.spotCommentForm) {
-        reader.onload = e => {
-          this.spotCommentImg = e.target.result;
-          console.log(this.spotCommentImg);
-        }
-      }
-    },
-    deletePreview() {
-      if (this.spotEditForm) {
-        this.spotImg = '';
-      } else if (this.spotCommentForm) {
-        this.spotCommentImg = ''
-      }
-    },
-    place(event) {
-       if (event) {
-        this.position.lat = event.latLng.lat()
-        this.position.lng = event.latLng.lng()
-        console.log(this.position)
-      }
-    },
     spotEdit() {
       axios
         .put("http://127.0.0.1:8000/api/posts/" + this.id, {
@@ -268,57 +251,52 @@ export default {
           this.$router.push({ name: 'Home' });
         })
     },
-    // async commentGet() {
-    //   let commentData = [];
-    //   const comments = await axios.get("http://127.0.0.1:8000/api/comments/", { params: { post_id: this.id }})
-    //   console.log(comments.data.data);
-    //   for (let i = 0; i < comments.data.data.length; i++) {
-    //     await axios
-    //       .get(
-    //         "http://127.0.0.1:8000/api/comments/" + comments.data.data[i].id)
-    //       .then((response) => {
-    //         console.log(response);
-    //         commentData.push(response.data);
-    //         console.log(commentData);
-    //       })
-    //   }
-    //   this.comments = commentData;
-    // },
+    commetnGet() {
+      axios
+        .get("http://127.0.0.1:8000/api/comments/",
+          {
+            params: {
+              post_id: this.id
+            }
+          }
+        )
+      .then((response) => {
+        console.log(response);
+        this.showComments = response.data.comments;
+      }) 
+    },
     commentPost() {
       axios
         .post("http://127.0.0.1:8000/api/comments/", {
           post_id: this.id,
           user_id: this.$store.state.user.id,
           comment: this.spotComment,
-          commentImg: this.spotCommentImg
         })
         .then((response) => {
           console.log(response);
-          this.comment = '';
-          this.commentImg = '';
-          this.$router.go({
-            path: this.$router.currentRoute.path,
-            force: true,
-          });
+          this.spotComment = '';
+          this.commetnGet();
         })
     },
     commentDelete(commentId) {
       axios
         .delete("http://127.0.0.1:8000/api/comments/"+commentId)
         .then((response) => {
-          console.log(response)
-          this.$router.go({
-                path: this.$router.currentRoute.path,
-                force: true,
-              });
+          console.log(response);
+          this.commetnGet();
         })
     }
   },
+  watch: {
+    spotData(newSpotData) {
+      if (newSpotData) {
+        this.conversion();
+        this.getSpotWeater();
+      }
+    },
+  },
   created() {
     this.spotShow();
-  },
-  updated() {
-    this.conversion();
   },
   components: {
     Navi
@@ -327,26 +305,93 @@ export default {
 </script>
 
 <style scoped>
+.container {
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  padding: 20px 10%;
+}
+.img-wrap {
+  padding: 50px 0 20px;
+}
 .spot-img {
   width: 100%;
   height: 500px;
+}
+.weather {
+  display: flex;
+  justify-content: space-around;
+}
+.weather-day {
+  text-align: center;
+}
+.weather-icon {
+  height: 70px;
+}
+.weather-main {
+  text-align: center;
+  font-weight: bold;
+}
+.weather-description {
+  text-align: center;
+  font-size: 6px;
+  font: #727272;
+}
+.toggle-area {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.weather-area {
+  margin-right: 5px;
+}
+.weather-button {
+  color: #000;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+}
+.map-button {
+  color: #000;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+}
+.map-button-imag {
+  height: 21px;
+}
+.weather-button:hover {
+  color: rgb(55, 101, 255);
+}
+.map-button:hover {
+  color: rgb(55, 101, 255);
+}
+.map {
+  width: 100%; 
+  height: 300px;
+  margin: 0 auto;
 }
 .spot-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+.spot-info {
+  display: flex;
+}
+
 .spot-name {
   margin: 30px;
   font-size: 25px;
   font-weight: bold;
 }
-.spot-name .rain {
-  margin: 30px;
-  font-size: 13px;
+.tag-flex {
+  display: flex;
+  align-items: center;
+}
+.tags {
+  margin-right: 5px;
 }
 .bookmark {
-  margin: 20px 100px;
+  margin: 20px 10px;
   display: flex;
 }
 .bookmark p {
@@ -359,20 +404,22 @@ export default {
 .post-user {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 }
 .spot-text {
-  width: 60%; 
-  margin: 20px 0 0 15%;
+  width: 70%; 
+  margin: 20px 0 10px 15%;
   padding: 0 0 15px 30px;
   padding-bottom: 15px;
   border-bottom: 1px solid rgb(197, 197, 197);
 }
+.post-user {
+  margin-bottom: 10px;
+}
 .user {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 40%;
+  width: 20%;
+  text-align: center;
+  cursor: pointer;
 }
 .user-img{ 
   width: 50px;
@@ -380,65 +427,33 @@ export default {
   border-radius: 50%;
 }
 .user-name {
-  margin: 0 10px;
-}
-
-.preview-img {
-  width: 80%;
-  height: 300px;
-}
-.modal-form {
-  z-index: 1;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.form-content {
-  text-align: center;
-  z-index: 2;
-  width: 30%;
-  padding: 10px;
-  background: #fff;
-}
-.comment-area{
-  height: 140px;
-  width: 80%;
-  display: flex;
-  justify-content: space-around;
-}
-.comment-user {
-  height: 100%;
-  width: 20%;
-}
-.comment-text{
-  text-align: center;
-  width: 60%;
-  height: 100%;
-}
-.comment-image {
+  font-size: 12px;
   margin: 0;
-  height: 100%;
-  width: 20%;
-  text-align: center;
 }
-.comment-img {
-  height: 90px;
-  width: 90px;
+.setting {
+  width: 2%;
 }
-.profile-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-left: 30px;
+.setting-icon {
+  cursor: pointer;
 }
 .comment-delete {
-  height: 50px;
-  width: 30px;
+  width: 2%;
+}
+.delete-button {
+  height: 20px;
+  cursor: pointer;
+}
+.comment-form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.spot-text input {
+  border: none;
+  width: 70%;
+}
+.comment-button {
+  width: 20%;
+  padding-left: 4%;
 }
 </style>

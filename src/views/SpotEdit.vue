@@ -2,7 +2,7 @@
   <div class="post">
     <Navi />
     <div class="post-card">
-      <h1 class="post-title">Post</h1>
+      <h1 class="post-title">編集</h1>
       <div v-if="spotImg">
         <button @click="deletePreview()">X</button>
         <img :src="spotImg" class="spot-img">
@@ -10,7 +10,7 @@
       <ValidationObserver v-slot="{ handleSubmit }">
         <form @submit.prevent="handleSubmit()">
           
-          <ValidationProvider name="スポットの写真" rules="required|image" v-slot="{ errors }">
+          <ValidationProvider name="スポットの写真" rules="image" v-slot="{ errors }">
             <div class="form-group">
               <label>スポットの写真</label>
               <input type="file" class="form-control" @change="confirmImage">
@@ -73,9 +73,10 @@
               @click="toggleInfoWindow()"
             />
           </GmapMap>
-          <span class="error">{{ error }}</span><br>
+          <div class="btn btn-outline-danger delete" @click="toggleDelete()">投稿を削除する?</div>
+          <div v-if="deleteArea" @click="spotDelete()" class="delete-button">削除<img  class="delete-img" src="../assets/delete.png" alt=""></div>
           <div class="text-center">
-            <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="spotPost()">投稿する</button>
+            <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="spotEdit()">投稿する</button>
           </div>
         </form>
       </ValidationObserver>
@@ -87,11 +88,11 @@
 import axios from "axios";
 import Navi from "../components/Navi";
 export default {
+  props: ["id"],
   data() {
     return {
-      lat: Number(this.$store.state.user.userLat),
-      lng: Number(this.$store.state.user.userLng),
-      error: '',
+      lat:'',
+      lng: '',
       spotImg: '',
       spotName: '',
       spotText: '',
@@ -100,9 +101,25 @@ export default {
         lat: '',
         lng: ''
       },
+      deleteArea: false,
     }
   },
   methods: {
+    async spotShow() {
+      await axios
+        .get("http://127.0.0.1:8000/api/posts/" + this.id)
+        .then((response) => {
+          console.log(response)
+          this.lat = Number(response.data.spot.spotLat);
+          this.lng = Number(response.data.spot.spotLng);
+          this.position.lat = this.lat;
+          this.position.lng = this.lng;
+          this.spotImg = response.data.spot.spotImg;
+          this.spotName = response.data.spot.spotName;
+          this.spotText = response.data.spot.spotText;
+          this.spotType = response.data.type;
+        })
+    },
     confirmImage(e) {
       const image = e.target.files[0];
       const reader = new FileReader();
@@ -123,13 +140,9 @@ export default {
         console.log(this.position)
       }
     },
-    spotPost() {
-      if (!this.position.lat || !this.position.lng) {
-        this.error = 'マップの位置を指定してください'
-      }
+    spotEdit() {
       axios
-        .post("http://127.0.0.1:8000/api/posts", {
-          userId: this.$store.state.user.id,
+        .put("http://127.0.0.1:8000/api/posts/"+this.id, {
           spotName: this.spotName,
           spotText: this.spotText,
           spotImg: this.spotImg,
@@ -138,12 +151,24 @@ export default {
           spotLng: this.position.lng,
         })
         .then((response) => {
-          console.log(response);
           console.log(response.data.data)
-          this.$router.push('/');
-          
+          this.$router.push({ path: '/spot/'+this.id, params: { id: this.id }});
         })
-    }
+    },
+    toggleDelete() {
+      this.deleteArea = !this.deleteArea;
+    },
+    spotDelete() {
+      axios
+        .delete("http://127.0.0.1:8000/api/posts/" + this.id)
+        .then((response) => {
+          console.log(response);
+          this.$router.push({ name: 'Home' });
+        })
+    },
+  },
+  mounted() {
+    this.spotShow();
   },
   components: {
     Navi
@@ -176,5 +201,16 @@ export default {
 }
 .error {
   color: #fb0101;
+}
+.delete {
+  margin: 30px 0;
+  cursor: pointer;
+}
+.delete-img {
+  height: 50px;
+}
+.delete-button {
+  color: #fb0101;
+  cursor: pointer;
 }
 </style>
