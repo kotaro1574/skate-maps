@@ -213,4 +213,5 @@ export default {
   color: #fb0101;
   cursor: pointer;
 }
+
 </style>

@@ -104,6 +104,29 @@
         </div>
       </div>
     </div>
+
+    <div class="border"></div>
+      <div class="best-title">Best trick
+        <span> (Video&Photo)  </span>
+        <b-icon class="best-icon" icon="cloud-plus" @click="toggleBestForm()"></b-icon>
+      </div>
+      <div class="file-form" v-if="bestTrick">
+        <ValidationObserver v-slot="{ handleSubmit }">
+          <form @submit.prevent="handleSubmit()">
+            <ValidationProvider name="動画または写真" rules="image" v-slot="{ errors }">
+            <div class="form-group">
+              <label class="best-label">このスポットの Best trick 動画または画像を投稿しよう</label>
+              <input type="file" class="form-control" ref="file" @change="confirm">
+              <span class="error">{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="filePost()">投稿</button>
+          </div>
+          {{ file }}
+          </form>
+        </ValidationObserver>
+      </div>
     </div>
   </div>
 </template>
@@ -137,9 +160,31 @@ export default {
       weather: false,
       dailyWeatherData: '',
       dailyWeathers: [],
+      bestTrick: false,
+      file: '',
     }
   },
   methods: {
+    confirm() {
+      console.log(this.$refs.file.files)
+      this.file = this.$refs.file.files[0];
+      console.log(this.file);
+    },
+    filePost() {
+      console.log(this.file);
+      let data = new FormData();
+      data.append("file", this.file);
+      console.log(data.get('file'));
+      axios
+        .post("http://127.0.0.1:8000/api/posts/", {
+          spotId: this.id,
+          userId: this.$store.state.user.id,
+          file: data,
+        })
+        .then((response) => {
+          console.log(response.data);
+        })
+    },
     async spotShow() {
       await axios
         .get("http://127.0.0.1:8000/api/posts/" + this.id)
@@ -285,6 +330,9 @@ export default {
           console.log(response);
           this.commetnGet();
         })
+    },
+    toggleBestForm() {
+      this.bestTrick = !this.bestTrick;
     }
   },
   watch: {
@@ -379,7 +427,7 @@ export default {
 }
 
 .spot-name {
-  margin: 30px;
+  margin: 30px 30px 30px 0;
   font-size: 25px;
   font-weight: bold;
 }
@@ -455,5 +503,28 @@ export default {
 .comment-button {
   width: 20%;
   padding-left: 4%;
+}
+.border {
+  margin: 50px 0;
+  border: 1px solid #000;
+}
+.best-title {
+  font-size: 25px;
+  font-weight: bold;
+}
+.best-icon {
+  cursor: pointer;
+  font-size: 30px;
+  margin: 0 5px;
+}
+.best-icon:hover {
+  color: rgb(96, 120, 255);
+}
+.best-title span {
+  font-size: 15px;
+  font-weight: normal;
+}
+.best-label {
+  color: rgb(153, 153, 153);
 }
 </style>
