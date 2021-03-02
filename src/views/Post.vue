@@ -13,7 +13,7 @@
           <ValidationProvider name="スポットの写真" rules="required|image" v-slot="{ errors }">
             <div class="form-group">
               <label>スポットの写真</label>
-              <input type="file" class="form-control" @change="confirmImage">
+              <input type="file" class="form-control" id="files" ref="files" multiple @change="handleFilesUploads()">
               <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
@@ -92,6 +92,7 @@ export default {
       lat: Number(this.$store.state.user.userLat),
       lng: Number(this.$store.state.user.userLng),
       error: '',
+      files: '',
       spotImg: '',
       spotName: '',
       spotText: '',
@@ -103,16 +104,20 @@ export default {
     }
   },
   methods: {
-    confirmImage(e) {
-      const image = e.target.files[0];
-      const reader = new FileReader();
-      reader.readAsDataURL(image);
-
-      reader.onload = e => {
-      this.spotImg = e.target.result;
-      console.log(this.spotImg);
-      }
+    handleFilesUploads(){
+      this.files = this.$refs.files.files;
+      console.log(this.files);
     },
+    // confirmImage(e) {
+    //   const image = e.target.files[0];
+    //   const reader = new FileReader();
+    //   reader.readAsDataURL(image);
+
+    //   reader.onload = e => {
+    //   this.spotImg = e.target.result;
+    //   console.log(this.spotImg);
+    //   }
+    // },
     deletePreview() {
       this.spotImg = '';
     },
@@ -127,22 +132,29 @@ export default {
       if (!this.position.lat || !this.position.lng) {
         this.error = 'マップの位置を指定してください'
       }
-      axios
-        .post("http://127.0.0.1:8000/api/posts", {
-          userId: this.$store.state.user.id,
-          spotName: this.spotName,
-          spotText: this.spotText,
-          spotImg: this.spotImg,
-          spotType: this.spotType,
-          spotLat: this.position.lat,
-          spotLng: this.position.lng,
-        })
-        .then((response) => {
+      let formData = new FormData();
+      for (let i = 0; i < this.files.length; i++) {
+        let file = this.files[i];
+        formData.append('files['+i+']', file);
+      }
+      formData.append('userId', this.$store.state.user.id);
+      formData.append('spotName', this.spotName);
+      formData.append('spotText', this.spotText);
+      formData.append('spotType', this.spotType);
+      formData.append('spotLat', this.position.lat);
+      formData.append('spotLng', this.position.lng);
+      axios.post("http://127.0.0.1:8000/api/posts",
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      ).then((response) => {
           console.log(response);
           console.log(response.data.data)
           this.$router.push('/');
-          
-        })
+      })
     }
   },
   components: {

@@ -6,10 +6,11 @@ import store from './store'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import VueSwal from 'vue-swal'
+Vue.use(VueSwal)
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 
-console.log('これ２', process.env.VUE_APP_GOOGLE_MAP_API);
 Vue.use(VueGoogleMaps, {
   load: {
     key: process.env.VUE_APP_GOOGLE_MAP_API,

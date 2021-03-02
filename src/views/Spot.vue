@@ -89,11 +89,11 @@
           <p class="spot-text">{{ comments.comment.comment }}</p>
           <div class="user" @click="$router.push({ path: '/mymap/'+ comments.commentUser.id, params: { id: comments.commentUser.id } })">
             <img :src="comments.commentUser.image" class="user-img" v-if="comments.commentUser.image">
-            <img src="../assets/profile_icon.png" alt="" v-if="!comments.commentUser.image">
+            <img src="../assets/profile_icon.png" alt="" class="user-img" v-if="!comments.commentUser.image">
             <p class="user-name">{{ comments.commentUser.name }}</p>
           </div>
           <div class="comment-delete">
-            <img class="delete-button" src="../assets/delete.png" alt="" v-if="$store.state.user.id == comments.commentUser.id" @click="commentDelete(comments.comment.id)">
+            <b-icon icon="trash" class="delete-button" @click="alert(comments.comment.id)" v-if="$store.state.user.id == comments.commentUser.id"></b-icon>
           </div>
         </div>
       </div>
@@ -123,10 +123,18 @@
           <div class="text-center">
             <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="filePost()">投稿</button>
           </div>
-          {{ file }}
-          </form>
+        </form>
         </ValidationObserver>
       </div>
+
+      <div class="best-tricks">
+        <div class="best-trick" v-for="(item, index) in files" :key="index" >
+          <div class="image-wrap">
+            <img :src="'http://127.0.0.1:8000/'+item.file.path" alt="" class="best-img" @click="openModal(item)">
+          </div>
+        </div>
+        <Modal :val="postItem" v-show="showContent" @close="closeModal" />
+       </div>
     </div>
   </div>
 </template>
@@ -134,6 +142,7 @@
 <script>
 import axios from "axios";
 import Navi from "../components/Navi";
+import Modal from "../components/Modal";
 export default {
   props: ["id"],
   data() {
@@ -162,9 +171,31 @@ export default {
       dailyWeathers: [],
       bestTrick: false,
       file: '',
+      files: [],
+      showContent: false,
+      postItem: '',
     }
   },
   methods: {
+    async  fileGet() {
+      let file = [];
+      const files = await axios.get("http://127.0.0.1:8000/api/besttricks", {params: {id: this.id}})
+        console.log(files);
+      for (let i = 0; i < files.data.data.length; i++) {
+        console.log(files.data.data[i].id);
+        await axios
+          .get("http://127.0.0.1:8000/api/besttricks/" + files.data.data[i].id, {
+            params: {
+              id: files.data.data[i].id
+          }
+          })
+          .then((response) => {
+            file.push(response.data);
+          })
+      }
+      this.files = file;
+      console.log(this.files);
+    },
     confirm() {
       console.log(this.$refs.file.files)
       this.file = this.$refs.file.files[0];
@@ -173,17 +204,30 @@ export default {
     filePost() {
       console.log(this.file);
       let data = new FormData();
-      data.append("file", this.file);
+      data.append('spot_id', this.id);
+      data.append('user_id', this.$store.state.user.id);
+      data.append('file', this.file);
       console.log(data.get('file'));
       axios
-        .post("http://127.0.0.1:8000/api/posts/", {
-          spotId: this.id,
-          userId: this.$store.state.user.id,
-          file: data,
+        .post("http://127.0.0.1:8000/api/besttricks", data, {
+            headers: {'Content-Type': 'multipart/form-data'}
         })
         .then((response) => {
           console.log(response.data);
+          this.file = '';
+          this.bestTrick = false;
+          this.fileGet();
         })
+    },
+    openModal(item) {
+      this.showContent = true
+      this.postItem = item
+    },
+    closeModal(update) {
+      this.showContent = false
+      if (update) {
+        this.fileGet();
+      }
     },
     async spotShow() {
       await axios
@@ -296,7 +340,7 @@ export default {
           this.$router.push({ name: 'Home' });
         })
     },
-    commetnGet() {
+    commentGet() {
       axios
         .get("http://127.0.0.1:8000/api/comments/",
           {
@@ -320,15 +364,34 @@ export default {
         .then((response) => {
           console.log(response);
           this.spotComment = '';
-          this.commetnGet();
+          this.commentGet();
         })
     },
-    commentDelete(commentId) {
+    alert(id) {
+      this.$swal({
+       title: "確認",
+       text: "削除しますか？",
+       icon: "warning",
+       buttons: true,
+       dangerMode: true,
+     })
+     .then((willDelete) => {
+       if (willDelete) {
+         this.commentDelete(id);
+         this.$swal("削除されました。", {
+           icon: "success",
+         });
+       } else {
+         this.$swal("Cancelされました。");
+       }
+      });
+    },
+    commentDelete(id) {
       axios
-        .delete("http://127.0.0.1:8000/api/comments/"+commentId)
+        .delete("http://127.0.0.1:8000/api/comments/"+id)
         .then((response) => {
           console.log(response);
-          this.commetnGet();
+          this.commentGet();
         })
     },
     toggleBestForm() {
@@ -346,14 +409,23 @@ export default {
   created() {
     this.spotShow();
   },
+  mounted() {
+    this.fileGet();
+
+  },
   components: {
-    Navi
+    Navi,
+    Modal
   }
 }
 </script>
 
 <style scoped>
+.spot {
+  height: 100%;
+}
 .container {
+  height: 100%;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   padding: 20px 10%;
 }
@@ -482,14 +554,22 @@ export default {
   width: 2%;
 }
 .setting-icon {
+  color: rgb(100, 100, 100);
   cursor: pointer;
+}
+.setting-icon:hover {
+  color: rgb(55, 101, 255);
 }
 .comment-delete {
   width: 2%;
 }
 .delete-button {
   height: 20px;
+  color: rgb(100, 100, 100);
   cursor: pointer;
+}
+.delete-button:hover {
+  color: rgb(255, 73, 73);
 }
 .comment-form {
   display: flex;
@@ -527,4 +607,24 @@ export default {
 .best-label {
   color: rgb(153, 153, 153);
 }
+.best-tricks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+.image-wrap {
+  margin-top: 50px;
+
+}
+.best-img {
+  height: 240px;
+  width: 240px;
+  cursor: pointer;
+}
+.best-img:hover {
+  box-shadow: 10px 10px 10px rgba(0,0,0,0.5);
+  transform: translateY(-10px);
+  transition-duration: 0.5s;
+}
+
 </style>

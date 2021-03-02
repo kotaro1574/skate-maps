@@ -341,6 +341,9 @@ export default {
 </script>
 
 <style scoped>
+.home {
+  height: 100%;
+}
 .home-img {
   height: 600px;
   background: url("../assets/top.jpg");

@@ -73,8 +73,8 @@
               @click="toggleInfoWindow()"
             />
           </GmapMap>
-          <div class="btn btn-outline-danger delete" @click="toggleDelete()">投稿を削除する?</div>
-          <div v-if="deleteArea" @click="spotDelete()" class="delete-button">削除<img  class="delete-img" src="../assets/delete.png" alt=""></div>
+          <div class="btn btn-outline-danger delete" @click="alert()">投稿を削除する?  <b-icon icon="trash"></b-icon></div>
+          
           <div class="text-center">
             <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="spotEdit()">投稿する</button>
           </div>
@@ -101,7 +101,6 @@ export default {
         lat: '',
         lng: ''
       },
-      deleteArea: false,
     }
   },
   methods: {
@@ -155,8 +154,24 @@ export default {
           this.$router.push({ path: '/spot/'+this.id, params: { id: this.id }});
         })
     },
-    toggleDelete() {
-      this.deleteArea = !this.deleteArea;
+    alert() {
+      this.$swal({
+       title: "確認",
+       text: "本当に削除しますか？",
+       icon: "warning",
+       buttons: true,
+       dangerMode: true,
+     })
+     .then((willDelete) => {
+       if (willDelete) {
+         this.spotDelete();
+         this.$swal("削除されました。", {
+           icon: "success",
+         });
+       } else {
+         this.$swal("Cancelされました。");
+       }
+      });
     },
     spotDelete() {
       axios

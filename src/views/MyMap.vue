@@ -118,25 +118,25 @@ export default {
   methods: {
     async getUser() {
       if (this.id == this.$store.state.user.id) {
-        this.name = this.$store.state.user.name
-        this.profile = this.$store.state.user.profile
-        this.userImg = this.$store.state.user.image
-        this.userId = this.$store.state.user.id
-        this.lat = Number(this.$store.state.user.userLat)
-        this.lng = Number(this.$store.state.user.userLng)
+        this.name = this.$store.state.user.name;
+        this.profile = this.$store.state.user.profile;
+        this.userImg = this.$store.state.user.image;
+        this.userId = this.$store.state.user.id;
+        this.lat = Number(this.$store.state.user.userLat);
+        this.lng = Number(this.$store.state.user.userLng);
         this.getMyWeater();
       } else {
         await axios
-                .get("http://127.0.0.1:8000/api/user/"+this.id)
-                .then((response) => {
-                  console.log(response.data.data)
-                  this.name = response.data.data.name
-                  this.profile = response.data.data.profile
-                  this.userImg = response.data.data.image
-                  this.userId = response.data.data.id
-                  this.lat = Number(response.data.data.userLat)
-                  this.lng = Number(response.data.data.userLng)
-                })
+          .get("http://127.0.0.1:8000/api/user/"+this.id)
+          .then((response) => {
+            console.log(response.data.data);
+            this.name = response.data.data.name;
+            this.profile = response.data.data.profile;
+            this.userImg = response.data.data.image;
+            this.userId = response.data.data.id;
+            this.lat = Number(response.data.data.userLat);
+            this.lng = Number(response.data.data.userLng);
+          })
       }
     },
      async getMyWeater() {
