@@ -79,6 +79,7 @@
           </div>
         </form>
       </ValidationObserver>
+            <button type="submit" class="btn btn-primary mt-3" @click="spotImgPost()">投稿する</button>
     </div>
   </div>
 </template>
@@ -101,6 +102,7 @@ export default {
         lat: '',
         lng: ''
       },
+      spotId: '',
     }
   },
   methods: {
@@ -132,18 +134,34 @@ export default {
       if (!this.position.lat || !this.position.lng) {
         this.error = 'マップの位置を指定してください'
       }
+      
+      axios.post("http://127.0.0.1:8000/api/posts", {
+        userId: this.$store.state.user.id,
+        spotName: this.spotName,
+        spotText: this.spotText,
+        spotType: this.spotType,
+        spotLat: this.position.lat,
+        spotLng: this.position.lng
+      }
+      ).then((response) => {
+        console.log(response.data.data);
+        this.spotId = response.data.data.id;
+        console.log(this.spotId);
+        this.spotImgPost();
+          // this.$router.push('/');
+      })
+    },
+    spotImgPost() {
       let formData = new FormData();
       for (let i = 0; i < this.files.length; i++) {
         let file = this.files[i];
         formData.append('files['+i+']', file);
       }
-      formData.append('userId', this.$store.state.user.id);
-      formData.append('spotName', this.spotName);
-      formData.append('spotText', this.spotText);
-      formData.append('spotType', this.spotType);
-      formData.append('spotLat', this.position.lat);
-      formData.append('spotLng', this.position.lng);
-      axios.post("http://127.0.0.1:8000/api/posts",
+      formData.append('post_id', this.spotId)
+      console.log(formData);
+      console.log(formData.get('files[0]'))
+      axios.post(
+        "http://127.0.0.1:8000/api/files", 
         formData,
         {
           headers: {
@@ -151,9 +169,7 @@ export default {
           }
         }
       ).then((response) => {
-          console.log(response);
-          console.log(response.data.data)
-          this.$router.push('/');
+        console.log(response)
       })
     }
   },
