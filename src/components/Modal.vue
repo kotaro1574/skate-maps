@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="best-image">
-        <img :src="'http://127.0.0.1:8000/'+val.file.path" alt="" class="best-img" >
+        <video :src="'http://127.0.0.1:8000/'+val.file.path" controls alt="" class="best-img" ></video>
       </div>
     </div>
   </div>

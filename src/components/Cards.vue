@@ -15,7 +15,9 @@
       <div class="cards-flex" v-if="type == 1">
         <div class="card" v-for="(spotData, index) in spots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -36,7 +38,9 @@
       <div class="cards-flex" v-if="type == 2">
         <div class="card" v-for="(spotData, index) in streetSpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -57,7 +61,9 @@
       <div class="cards-flex" v-if="type == 3">
         <div class="card" v-for="(spotData, index) in parkSpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -78,7 +84,9 @@
       <div class="cards-flex" v-if="type == 4">
         <div class="card" v-for="(spotData, index) in rainSpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -112,7 +120,9 @@
       <div class="cards-flex" v-if="type == 1">
         <div class="card" v-for="(spotData, index) in mySpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -133,7 +143,9 @@
       <div class="cards-flex" v-if="type == 2">
         <div class="card" v-for="(spotData, index) in myStreetSpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -154,7 +166,9 @@
       <div class="cards-flex" v-if="type == 3">
         <div class="card" v-for="(spotData, index) in myParkSpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}
@@ -175,7 +189,9 @@
       <div class="cards-flex" v-if="type == 4">
         <div class="card" v-for="(spotData, index) in myRainSpots" :key="index">
           <div class="card-img" @click="$router.push({ path: '/spot/'+spotData.spot.id, params: { id: spotData.spot.id }})" variant="primary">
-            <img class="card-img" :src="spotData.spot.spotImg" alt="">
+            <div v-for="(image, index) in spotData.image" :key="index">
+              <img class="card-img"  :src="'http://127.0.0.1:8000/' + image.path" alt="" v-if="index === 0">
+            </div>
           </div>
           <div class="card-title">
             {{ spotData.spot.spotName }}

@@ -3,7 +3,11 @@
     <Navi />
     <div class="container">
       <div class="img-wrap">
-        <img :src="spotData.spot.spotImg" alt="" class="spot-img">
+        <hooper class="spot-img">
+          <slide v-for="(image, index) in spotData.image" :key="index" class="spot-img">
+              <img :src="'http://127.0.0.1:8000/'+image.path" alt="" class="spot-img">
+          </slide>
+        </hooper>
       </div>
       <div class="toggle-area">
         <div class="weather-area">
@@ -130,7 +134,7 @@
       <div class="best-tricks">
         <div class="best-trick" v-for="(item, index) in files" :key="index" >
           <div class="image-wrap">
-            <img :src="'http://127.0.0.1:8000/'+item.file.path" alt="" class="best-img" @click="openModal(item)">
+            <video :src="'http://127.0.0.1:8000/'+item.file.path" alt="" class="best-img" @click="openModal(item)"></video>
           </div>
         </div>
         <Modal :val="postItem" v-show="showContent" @close="closeModal" />
@@ -140,6 +144,8 @@
 </template>
 
 <script>
+import { Hooper, Slide } from 'hooper';
+import 'hooper/dist/hooper.css';
 import axios from "axios";
 import Navi from "../components/Navi";
 import Modal from "../components/Modal";
@@ -415,7 +421,9 @@ export default {
   },
   components: {
     Navi,
-    Modal
+    Modal,
+    Hooper,
+    Slide
   }
 }
 </script>

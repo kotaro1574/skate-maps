@@ -3,17 +3,13 @@
     <Navi />
     <div class="post-card">
       <h1 class="post-title">編集</h1>
-      <div v-if="spotImg">
-        <button @click="deletePreview()">X</button>
-        <img :src="spotImg" class="spot-img">
-      </div>
       <ValidationObserver v-slot="{ handleSubmit }">
         <form @submit.prevent="handleSubmit()">
           
           <ValidationProvider name="スポットの写真" rules="image" v-slot="{ errors }">
             <div class="form-group">
-              <label>スポットの写真</label>
-              <input type="file" class="form-control" @change="confirmImage">
+              <label>写真の追加</label>
+              <input type="file" class="form-control" id="files" ref="files" multiple @change="handleFilesUploads()">
               <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
@@ -91,9 +87,9 @@ export default {
   props: ["id"],
   data() {
     return {
+      files: '',
       lat:'',
       lng: '',
-      spotImg: '',
       spotName: '',
       spotText: '',
       spotType: [],
@@ -104,6 +100,10 @@ export default {
     }
   },
   methods: {
+    handleFilesUploads(){
+      this.files = this.$refs.files.files;
+      console.log(this.files);
+    },
     async spotShow() {
       await axios
         .get("http://127.0.0.1:8000/api/posts/" + this.id)
@@ -113,10 +113,10 @@ export default {
           this.lng = Number(response.data.spot.spotLng);
           this.position.lat = this.lat;
           this.position.lng = this.lng;
-          this.spotImg = response.data.spot.spotImg;
           this.spotName = response.data.spot.spotName;
           this.spotText = response.data.spot.spotText;
           this.spotType = response.data.type;
+          console.log(this.spotImg);
         })
     },
     confirmImage(e) {
@@ -129,9 +129,6 @@ export default {
       console.log(this.spotImg);
       }
     },
-    deletePreview() {
-      this.spotImg = '';
-    },
     place(event) {
        if (event) {
         this.position.lat = event.latLng.lat()
@@ -140,19 +137,37 @@ export default {
       }
     },
     spotEdit() {
-      axios
-        .put("http://127.0.0.1:8000/api/posts/"+this.id, {
-          spotName: this.spotName,
-          spotText: this.spotText,
-          spotImg: this.spotImg,
-          spotType: this.spotType,
-          spotLat: this.position.lat,
-          spotLng: this.position.lng,
-        })
-        .then((response) => {
-          console.log(response.data.data)
-          this.$router.push({ path: '/spot/'+this.id, params: { id: this.id }});
-        })
+      axios.put("http://127.0.0.1:8000/api/posts/"+this.id, {
+        spotName: this.spotName,
+        spotText: this.spotText,
+        spotType: this.spotType,
+        spotLat: this.position.lat,
+        spotLng: this.position.lng,
+      })
+      .then((response) => {
+        console.log(response.data.data);
+        this.spotImgPost();
+        this.$router.push({ path: '/spot/'+this.id, params: { id: this.id }});
+        this.$router.go({
+                path: this.$router.currentRoute.path,
+                force: true,
+        });
+      })
+    },
+    spotImgPost() {
+      let formData = new FormData();
+      for (let i = 0; i < this.files.length; i++) {
+        let file = this.files[i];
+        formData.append('file['+i+']', file);
+      }
+      formData.append('post_id', this.id)
+      console.log(formData);
+      axios.post("http://127.0.0.1:8000/api/files", formData, { 
+        headers: {'Content-Type': 'multipart/form-data'}
+      })
+      .then((response) => {
+        console.log(response)
+      })
     },
     alert() {
       this.$swal({

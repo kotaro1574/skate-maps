@@ -3,10 +3,6 @@
     <Navi />
     <div class="post-card">
       <h1 class="post-title">Post</h1>
-      <div v-if="spotImg">
-        <button @click="deletePreview()">X</button>
-        <img :src="spotImg" class="spot-img">
-      </div>
       <ValidationObserver v-slot="{ handleSubmit }">
         <form @submit.prevent="handleSubmit()">
           
@@ -79,7 +75,6 @@
           </div>
         </form>
       </ValidationObserver>
-            <button type="submit" class="btn btn-primary mt-3" @click="spotImgPost()">投稿する</button>
     </div>
   </div>
 </template>
@@ -148,33 +143,27 @@ export default {
         this.spotId = response.data.data.id;
         console.log(this.spotId);
         this.spotImgPost();
-          // this.$router.push('/');
+        this.$router.push('/');
       })
     },
     spotImgPost() {
       let formData = new FormData();
       for (let i = 0; i < this.files.length; i++) {
         let file = this.files[i];
-        formData.append('files['+i+']', file);
+        formData.append('file['+i+']', file);
       }
       formData.append('post_id', this.spotId)
       console.log(formData);
-      console.log(formData.get('files[0]'))
-      axios.post(
-        "http://127.0.0.1:8000/api/files", 
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      ).then((response) => {
+      axios.post("http://127.0.0.1:8000/api/files", formData, { 
+        headers: {'Content-Type': 'multipart/form-data'}
+      })
+      .then((response) => {
         console.log(response)
       })
     }
   },
   components: {
-    Navi
+    Navi,
   }
 }
 </script>
