@@ -3,6 +3,9 @@
     <Navi />
     <div class="signup-card">
       <h1 class="signup-title">Sign Up</h1>
+      <div class="alert alert-danger" role="alert" v-if="error">
+        <span>{{ error }}</span>
+      </div>
       <ValidationObserver v-slot="{ handleSubmit }">
         <form @submit.prevent="handleSubmit()">
           <ValidationProvider name="名前" rules="required" v-slot="{ errors }">
@@ -87,7 +90,7 @@
           </ValidationProvider>
 
           <div class="text-center">
-            <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="auth">新規登録</button>
+            <button type="submit" class="btn btn-primary mt-3" tect="Submit" @click="auth()">新規登録</button>
           </div>
         </form>
       </ValidationObserver>
@@ -107,6 +110,7 @@ export default {
       address: '',
       lat: '',
       lng: '',
+      error: '',
     }
   },
   methods: {
@@ -122,6 +126,7 @@ export default {
       })
     },
     auth() {
+      this.error = '',
       axios
         .post("http://127.0.0.1:8000/api/register", {
           name: this.name,
@@ -131,11 +136,15 @@ export default {
           userLng: this.lng,
         })
         .then(response => {
-          console.log(response);
-          this.$router.replace("/");
+          console.log(response.data);
+          this.error = response.data.error;
+          if (!this.error) {
+            this.$router.push({ name: "Login" });
+          }
         })
     },
   },
+  
   mounted() {
     this.$gmapApiPromiseLazy().then(() => {
       this.geocoder = new google.maps.Geocoder()

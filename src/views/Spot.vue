@@ -5,7 +5,7 @@
       <div class="img-wrap">
         <hooper class="spot-img">
           <slide v-for="(image, index) in spotData.image" :key="index" class="spot-img">
-              <img :src="'http://127.0.0.1:8000/'+image.path" alt="" class="spot-img">
+              <img :src="image.path" alt="" class="spot-img">
           </slide>
         </hooper>
       </div>
@@ -70,7 +70,7 @@
           </div>
         </div>
       </div>
-      <div class="bookmark">
+      <div class="bookmark" v-if="$store.state.auth" >
          <p><b-icon class="fav-icon" icon="bookmark-check" @click="favorite()" v-if="!like"></b-icon></p>
          <p><b-icon class="fav-icon" icon="bookmark-check-fill" @click="favoriteDelete()" v-if="like"></b-icon></p>
         <p>{{ spotData.like.length }}</p>
@@ -84,7 +84,7 @@
         <p class="user-name">{{ spotData.user.name }}</p>
       </div>
       <div class="setting">
-        <b-icon class="setting-icon" icon="gear" @click="$router.push({ name: 'SpotEdit' })" v-if="$store.state.user.id == spotData.spot.user_id"></b-icon>
+        <b-icon class="setting-icon" icon="gear" @click="$router.push({ name: 'SpotEdit' })" v-if="$store.state.user.id == spotData.spot.user_id && $store.state.auth"></b-icon>
       </div>
     </div>
     <div class="spot-content">
@@ -101,7 +101,7 @@
           </div>
         </div>
       </div>
-      <div class="comment-form">
+      <div class="comment-form" v-if="$store.state.auth">
         <p class="spot-text"><input placeholder="+ spotの情報を追加しよう" type="text" v-model="spotComment" /></p>
         <div class="comment-button">
           <button @click="commentPost()" type="button" class="btn btn-primary">投稿</button>
@@ -111,15 +111,15 @@
 
     <div class="border"></div>
       <div class="best-title">Best trick
-        <span> (Video&Photo)  </span>
-        <b-icon class="best-icon" icon="cloud-plus" @click="toggleBestForm()"></b-icon>
+        <span> (Video)  </span>
+        <b-icon class="best-icon" icon="cloud-plus" @click="toggleBestForm()" v-if="$store.state.auth" ></b-icon>
       </div>
       <div class="file-form" v-if="bestTrick">
         <ValidationObserver v-slot="{ handleSubmit }">
           <form @submit.prevent="handleSubmit()">
-            <ValidationProvider name="動画または写真" rules="image" v-slot="{ errors }">
+            <ValidationProvider name="動画" rules="required|image" v-slot="{ errors }">
             <div class="form-group">
-              <label class="best-label">このスポットの Best trick 動画または画像を投稿しよう</label>
+              <label class="best-label">このスポットの Best trick 動画を投稿しよう</label>
               <input type="file" class="form-control" ref="file" @change="confirm">
               <span class="error">{{ errors[0] }}</span>
             </div>
@@ -134,7 +134,7 @@
       <div class="best-tricks">
         <div class="best-trick" v-for="(item, index) in files" :key="index" >
           <div class="image-wrap">
-            <video :src="'http://127.0.0.1:8000/'+item.file.path" alt="" class="best-img" @click="openModal(item)"></video>
+            <video :src="item.file.path" alt="" class="best-img" @click="openModal(item)"></video>
           </div>
         </div>
         <Modal :val="postItem" v-show="showContent" @close="closeModal" />
@@ -306,7 +306,7 @@ export default {
         }).then((response) => {
           console.log(response);
           this.like = false;
-          this.spotShow()
+          this.spotShow();
         })
     },
     favorite() {
@@ -443,10 +443,16 @@ export default {
 .spot-img {
   width: 100%;
   height: 500px;
+  border-radius: 5px;
+  cursor: pointer;
 }
 .weather {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
+}
+.daily {
+  margin: 20px 0;
 }
 .weather-day {
   text-align: center;
@@ -514,6 +520,7 @@ export default {
 .tag-flex {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
 .tags {
   margin-right: 5px;
@@ -536,9 +543,8 @@ export default {
 }
 .spot-text {
   width: 70%; 
-  margin: 20px 0 10px 15%;
+  margin: 20px 10px 10px 15%;
   padding: 0 0 15px 30px;
-  padding-bottom: 15px;
   border-bottom: 1px solid rgb(197, 197, 197);
 }
 .post-user {
@@ -592,6 +598,7 @@ export default {
   width: 20%;
   padding-left: 4%;
 }
+
 .border {
   margin: 50px 0;
   border: 1px solid #000;
@@ -619,20 +626,84 @@ export default {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  margin-bottom: 50px;
 }
 .image-wrap {
+  height: 240px;
   margin-top: 50px;
-
+  border-radius: 5px;
 }
 .best-img {
+  background: #c6c8ca;
+  border-radius: 5px;
   height: 240px;
   width: 240px;
   cursor: pointer;
 }
-.best-img:hover {
+.image-wrap:hover {
   box-shadow: 10px 10px 10px rgba(0,0,0,0.5);
   transform: translateY(-10px);
   transition-duration: 0.5s;
 }
+.error {
+  color: #fb0101;
+}
+@media screen and (max-width: 812px) {
+  .img-wrap {
+    padding: 30px 0 20px;
+  }
+  .spot-img {
+    height: 400px;
+  }
+  .map {
+    height: 200px;
+  }
+  .best-tricks {
+    margin-bottom: 40px;
+  }
+  .image-wrap {
+    height: 180px;
+    margin-top: 30px;
+  }
+  .best-img {
+    height: 180px;
+    width: 180px;
+    cursor: pointer;
+  }
+}
 
+@media screen and (max-width: 450px) {
+  .img-wrap {
+    padding: 10px 0 20px;
+  }
+  .spot-img {
+    height: 300px;
+  }
+  .map {
+    height: 150px;
+  }
+  .spot-info {
+    display: block;
+  }
+  .user-img{ 
+    width: 30px;
+    height: 30px;
+  }
+  .user-name {
+    font-size: 8px;
+  }
+  .comment-button button {
+    font-size: 12px;
+    padding: 5px;
+  }
+  .image-wrap {
+    height: 90px;
+    margin: 20px 5px 0;
+  }
+  .best-img {
+    height: 90px;
+    width: 90px;
+    cursor: pointer;
+  }
+}
 </style>

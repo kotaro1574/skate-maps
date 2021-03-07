@@ -33,9 +33,6 @@ const routes = [
     name: 'MyMap',
     component: MyMap,
     props: true,
-    meta: {
-      requresAuth: true,
-    }
   },
   {
     path: '/mymapedit',

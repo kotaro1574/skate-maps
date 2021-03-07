@@ -59,7 +59,7 @@
             :zoom="12"
             :options="{streetViewControl: false}"
             map-type-id="terrain"
-            style="width: 100%; height: 320px"
+            class="map"
             @click="place($event)"
           >
             <GmapMarker
@@ -147,11 +147,6 @@ export default {
       .then((response) => {
         console.log(response.data.data);
         this.spotImgPost();
-        this.$router.push({ path: '/spot/'+this.id, params: { id: this.id }});
-        this.$router.go({
-                path: this.$router.currentRoute.path,
-                force: true,
-        });
       })
     },
     spotImgPost() {
@@ -167,6 +162,7 @@ export default {
       })
       .then((response) => {
         console.log(response)
+        this.$router.push({ path: '/spot/'+this.id, params: { id: this.id }});
       })
     },
     alert() {
@@ -243,5 +239,20 @@ export default {
   color: #fb0101;
   cursor: pointer;
 }
+.map {
+  width: 100%; 
+  height: 320px;
+}
 
+@media screen and (max-width: 768px) {
+  .map {
+    height: 250px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .map {
+    height: 150px;
+  }
+}
 </style>

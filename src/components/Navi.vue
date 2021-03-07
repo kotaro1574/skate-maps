@@ -45,12 +45,15 @@ export default {
   },
   methods: {
     transitionHome() {
+      this.clear();
       this.$router.push({ name: "Home" });
     },
     transitionLogin() {
+      this.clear();
       this.$router.push({ name: "Login" });
     },
     transitionSignup() {
+      this.clear();
       this.$router.push({ name: "SignUp"});
     },
     transitionMyMap() {
@@ -61,6 +64,9 @@ export default {
     },
     hamburger() {
       this.isClass = !this.isClass;
+    },
+    clear() {
+      this.$store.dispatch("clear");
     }
   }
 }

@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="best-image">
-        <video :src="'http://127.0.0.1:8000/'+val.file.path" controls alt="" class="best-img" ></video>
+        <video :src="val.file.path" controls alt="" class="best-img" ></video>
       </div>
     </div>
   </div>
@@ -96,6 +96,7 @@ export default {
   height: 600px;
   width: 50%;
   background: #fff;
+  border-radius: 10px;
 }
 .user-wrap {
   display: flex;
@@ -110,6 +111,7 @@ export default {
 }
 .user-image {
   cursor: pointer;
+  
 }
 .user-img{ 
   width: 50px;
@@ -136,9 +138,34 @@ export default {
 .best-image {
   height: 88%;
   width: 100%;
+  background: #727272;
+  border-radius: 0 0 10px 10px;
 }
 .best-img {
   height: 100%;
   width: 100%;
+  border-radius: 0 0 10px 10px;
 } 
+
+@media screen and (max-width: 768px) {
+  .content {
+  height: 450px;
+  }
+}
+@media screen and (max-width: 450px) {
+  .content {
+    height: 350px;
+  }
+  .user {
+  display: block;
+}
+.user-img{ 
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+}
+.user-name {
+  font-size: 8px;
+}
+}
 </style>

@@ -14,6 +14,12 @@
             </div>
           </ValidationProvider>
 
+          <hooper class="image-hooper" v-if="confirmImg">
+            <slide v-for="(image, index) in confirmImg" :key="index" class="image-slide">
+                <img :src="image" alt="" class="spot-img">
+            </slide>
+          </hooper>
+
           <ValidationProvider name="スポットの名前" rules="required|max:150" v-slot="{ errors }">
             <div class="form-group">
               <label>スポットの名前</label>
@@ -59,7 +65,7 @@
             :zoom="12"
             :options="{streetViewControl: false}"
             map-type-id="terrain"
-            style="width: 100%; height: 320px"
+            class="map"
             @click="place($event)"
           >
             <GmapMarker
@@ -80,6 +86,8 @@
 </template>
 
 <script>
+import { Hooper, Slide } from 'hooper';
+import 'hooper/dist/hooper.css';
 import axios from "axios";
 import Navi from "../components/Navi";
 export default {
@@ -89,7 +97,7 @@ export default {
       lng: Number(this.$store.state.user.userLng),
       error: '',
       files: '',
-      spotImg: '',
+      confirmImg: '',
       spotName: '',
       spotText: '',
       spotType: [],
@@ -104,17 +112,25 @@ export default {
     handleFilesUploads(){
       this.files = this.$refs.files.files;
       console.log(this.files);
+      this.confirmImage();
     },
-    // confirmImage(e) {
-    //   const image = e.target.files[0];
-    //   const reader = new FileReader();
-    //   reader.readAsDataURL(image);
-
-    //   reader.onload = e => {
-    //   this.spotImg = e.target.result;
-    //   console.log(this.spotImg);
-    //   }
-    // },
+    confirmImage() {
+      let confirmImg = [];
+      for (let i = 0; i < this.files.length; i++) {
+        const image = this.files[i];
+        console.log(image);
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+  
+        reader.onload = e => {
+        const url = e.target.result;
+        confirmImg.push(url)
+        console.log(confirm);
+        }
+      }
+      this.confirmImg = confirmImg;
+      console.log(this.confirmImg)
+    },
     deletePreview() {
       this.spotImg = '';
     },
@@ -140,30 +156,30 @@ export default {
       }
       ).then((response) => {
         console.log(response.data.data);
-        this.spotId = response.data.data.id;
-        console.log(this.spotId);
-        this.spotImgPost();
-        this.$router.push('/');
+        this.spotImgPost(response.data.data.id);
       })
     },
-    spotImgPost() {
+    spotImgPost(id) {
       let formData = new FormData();
       for (let i = 0; i < this.files.length; i++) {
         let file = this.files[i];
         formData.append('file['+i+']', file);
       }
-      formData.append('post_id', this.spotId)
+      formData.append('post_id', id)
       console.log(formData);
       axios.post("http://127.0.0.1:8000/api/files", formData, { 
         headers: {'Content-Type': 'multipart/form-data'}
       })
       .then((response) => {
         console.log(response)
+        this.$router.push('/');
       })
     }
   },
   components: {
     Navi,
+    Hooper,
+    Slide
   }
 }
 </script>
@@ -187,11 +203,50 @@ export default {
   margin-top: 10px;
   text-align: center;
 }
+.image-hooper {
+  height: 400px;
+  width: 100%;
+  margin-bottom: 15px;
+}
+.image-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .spot-img {
-  height: 300px;
+  height: 350px;
   width: 80%;
+  border-radius: 5px;
 }
 .error {
   color: #fb0101;
+}
+.map {
+  width: 100%; 
+  height: 320px
+}
+
+@media screen and (max-width: 768px) {
+  .image-hooper {
+    height: 300px;
+  }
+  .spot-img {
+    height: 300px;
+  }
+  .map {
+    height: 250px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .image-hooper {
+    height: 150px;
+  }
+  .spot-img {
+    height: 150px;
+  } 
+  .map {
+    height: 150px;
+  }
 }
 </style>

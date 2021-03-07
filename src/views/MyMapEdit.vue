@@ -13,7 +13,23 @@
           <ValidationProvider name="プロフィール写真" rules="image" v-slot="{ errors }">
             <div class="form-group">
               <label>プロフィール写真</label>
-              <input type="file" class="form-control" @change="confirmImage">
+              <input type="file" ref="file" class="form-control" @change="confirm">
+              <span class="error">{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+          
+          <ValidationProvider name="instagramURL" rules="max:255" v-slot="{ errors }">
+            <div class="form-group">
+              <label>instagramURL</label>
+              <input type="text" class="form-control" v-model="instagramURL">
+              <span class="error">{{ errors[0] }}</span>
+            </div>
+          </ValidationProvider>
+
+          <ValidationProvider name="twitterURL" rules="max:255" v-slot="{ errors }">
+            <div class="form-group">
+              <label>twitterURL</label>
+              <input type="text" class="form-control" v-model="twitterURL">
               <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
@@ -25,7 +41,7 @@
               <span class="error">{{ errors[0] }}</span>
             </div>
           </ValidationProvider>
-          
+
           <ValidationProvider name="プロフィール" rules="max:600" v-slot="{ errors }">
             <div class="form-group">
               <label>プロフィール</label>
@@ -40,7 +56,7 @@
           :zoom="12"
           :options="{streetViewControl: false}"
           map-type-id="terrain"
-          style="width: 100%; height: 320px"
+          class="map"
           @click="place($event)"
         >
           <GmapMarker
@@ -66,18 +82,27 @@ export default {
     return {
       lat: Number(this.$store.state.user.userLat),
       lng: Number(this.$store.state.user.userLng),
-      name: '',
-      profile: '',
+      name: this.$store.state.user.name,
+      profile: this.$store.state.user.profile,
+      profileImg: this.$store.state.user.image,
       position: {
-        lat: '',
-        lng: ''
+        lat: Number(this.$store.state.user.userLat),
+        lng: Number(this.$store.state.user.userLng)
       },
-      profileImg: ''
+      file: this.$store.state.user.image,
+      instagramURL: this.$store.state.user.instagramURL,
+      twitterURL: this.$store.state.user.twitterURL,
     }
   },
   methods: {
-    confirmImage(e) {
-      const image = e.target.files[0];
+    confirm() {
+      console.log(this.$refs.file.files)
+      this.file = this.$refs.file.files[0];
+      console.log(this.file);
+      this.confirmImage(this.file);
+    },
+    confirmImage(file) {
+      const image = file;
       const reader = new FileReader();
       reader.readAsDataURL(image);
 
@@ -88,6 +113,7 @@ export default {
     },
     deletePreview() {
       this.profileImg = '';
+      this.file = '';
     },
     place(event) {
        if (event) {
@@ -97,14 +123,18 @@ export default {
       }
     },
     userEdit() {
+      let formData = new FormData();
+      formData.append('id', this.$store.state.user.id);
+      formData.append('name', this.name);
+      formData.append('profile', this.profile);
+      formData.append('userLat', this.position.lat);
+      formData.append('userLng', this.position.lng);
+      formData.append('file', this.file);
+      formData.append('instagramURL', this.instagramURL);
+      formData.append('twitterURL', this.twitterURL);
       axios
-      .put("http://127.0.0.1:8000/api/user", {
-        email: this.$store.state.user.email,
-        name: this.name,
-        profile: this.profile,
-        userLat: this.position.lat,
-        userLng: this.position.lng,
-        file: this.profileImg
+      .post("http://127.0.0.1:8000/api/user/" + this.$store.state.user.id, formData, { 
+        headers: {'X-HTTP-Method-Override': 'PUT'}
       })
       .then((response) => {
         console.log(response);
@@ -159,5 +189,21 @@ export default {
 }
 .error {
   color: #fb0101;
+}
+.map {
+  width: 100%;
+  height: 320px
+}
+
+@media screen and (max-width: 768px) {
+  .map {
+    height: 250px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .map {
+    height: 150px;
+  }
 }
 </style>

@@ -6,6 +6,7 @@
       <div class="profile-container">
         <div class="profile">
           <div class="profile-right">
+
             <img src="../assets/profile_icon.png" class="profile-img" alt="" v-if="!userImg">
             <img :src="userImg" alt="" class="profile-img" v-if="userImg">
           </div>
@@ -13,8 +14,8 @@
             <h3 class="profile-name">{{ name }} </h3>
             <p class="profile-text">{{ profile }}</p>
             <div class="profile-icon">
-              <b-icon class="icon" icon="twitter"></b-icon>
-              <a href="https://www.instagram.com/ktalow1574/" target="_blank"><b-icon class="icon" icon="instagram"></b-icon></a>
+              <a :href="twitterURL" target="_blank"><b-icon class="icon" icon="twitter"></b-icon></a>
+              <a :href="instagramURL" target="_blank"><b-icon class="icon" icon="instagram"></b-icon></a>
               <b-icon class="icon" icon="gear" @click="$router.push({ name: 'MyMapEdit' })" v-if="$store.state.user.id == this.id"></b-icon>
             </div>
           </div>
@@ -35,7 +36,7 @@
           :zoom="9"
           :options="{streetViewControl: false}"
           map-type-id="terrain"
-          style="width: 100%; height: 500px"
+          class="map"
         >
           <GmapInfoWindow
             :options="infoOptions"
@@ -124,6 +125,8 @@ export default {
         this.userId = this.$store.state.user.id;
         this.lat = Number(this.$store.state.user.userLat);
         this.lng = Number(this.$store.state.user.userLng);
+        this.instagramURL = this.$store.state.user.instagramURL;
+        this.twitterURL = this.$store.state.user.twitterURL;
         this.getMyWeater();
       } else {
         await axios
@@ -165,6 +168,13 @@ export default {
     toggleWeather() {
       this.weather = !this.weather;
     },
+    toggleInfoWindow(marker, name, image, id) {
+      this.infoWindowPos = marker;
+      this.cardName = name;
+      this.cardImg = image;
+      this.cardId = id;
+      this.infoWinOpen = true;
+    },
     showMySpotsData(mySpots) {
       this.mySpots = mySpots;
       console.log(this.spots)
@@ -190,8 +200,12 @@ export default {
         position.lat = Number(this.mySpots[i].spot.spotLat)
         position.lng = Number(this.mySpots[i].spot.spotLng)
         text.cardName = this.mySpots[i].spot.spotName
-        text.cardImg = this.mySpots[i].spot.spotImg
         text.cardId = this.mySpots[i].spot.id
+        for (let n = 0; n < this.mySpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.mySpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -207,8 +221,12 @@ export default {
         position.lat = Number(this.myStreetSpots[i].spot.spotLat)
         position.lng = Number(this.myStreetSpots[i].spot.spotLng)
         text.cardName = this.myStreetSpots[i].spot.spotName
-        text.cardImg = this.myStreetSpots[i].spot.spotImg
         text.cardId = this.myStreetSpots[i].spot.id
+        for (let n = 0; n < this.myStreetSpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.myStreetSpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -224,8 +242,12 @@ export default {
         position.lat = Number(this.myParkSpots[i].spot.spotLat)
         position.lng = Number(this.myParkSpots[i].spot.spotLng)
         text.cardName = this.myParkSpots[i].spot.spotName
-        text.cardImg = this.myParkSpots[i].spot.spotImg
         text.cardId = this.myParkSpots[i].spot.id
+        for (let n = 0; n < this.myParkSpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.myParkSpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -241,8 +263,12 @@ export default {
         position.lat = Number(this.myRainSpots[i].spot.spotLat)
         position.lng = Number(this.myRainSpots[i].spot.spotLng)
         text.cardName = this.myRainSpots[i].spot.spotName
-        text.cardImg = this.myRainSpots[i].spot.spotImg
         text.cardId = this.myRainSpots[i].spot.id
+        for (let n = 0; n < this.myRainSpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.myRainSpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -303,7 +329,7 @@ export default {
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  margin: 50px 0 50px;
+  margin: 50px;
 }
 .profile-left {
   width: 60%;
@@ -335,7 +361,12 @@ export default {
 }
 .weather {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
+  
+}
+.daily {
+  margin: 20px 0;
 }
 .weather-day {
   text-align: center;
@@ -351,5 +382,53 @@ export default {
   text-align: center;
   font-size: 6px;
   font: #727272;
+}
+.map {
+  width: 100%; 
+  height: 500px
+}
+.card {
+  border: none;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .profile {
+    display: block;
+  }
+  .profile-right {
+    width: 100%;
+    text-align: center;
+  }
+  .profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 10px;
+  }
+  .profile-left {
+    width: 100%;
+  }
+  .profile-name {
+    text-align: center;
+    padding: 0 20px;
+    margin: 10px 0;
+  }
+  .profile-text {
+    width: 100%;
+    padding: 0 20px;
+    margin: 20px 0;
+  }
+  .map {
+  width: 100%; 
+  height: 400px
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .map {
+  width: 100%; 
+  height: 300px
+  }
 }
 </style>

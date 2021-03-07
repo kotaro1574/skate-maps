@@ -1,11 +1,10 @@
 <template>
   <div class="home">
     <div class="home-img">
-      <HomeNavi />
+      <Navi />
     </div>
 
     <div class="search-wrap">
-      <div class="search-flex">
         <div class="search">
           <div class="search-area" @click="areaToggle()">
             <p class="area-title">area</p>
@@ -16,10 +15,6 @@
             <p class="search-icon" @click="formSearch()"><b-icon icon="search"></b-icon></p>
           </div>
         </div>
-        <div class="gif">
-          <img src="../assets/flip.gif" class="gif" alt="">
-        </div>
-      </div>
 
       <div class="area-flex" v-if="area">
         <div class="area-group">
@@ -110,7 +105,7 @@
       :zoom="9"
       :options="{streetViewControl: false}"
       map-type-id="terrain"
-      style="width: 100%; height: 500px"
+      class="map"
       v-if="address"
     >
       <GmapInfoWindow
@@ -152,7 +147,7 @@
 </template>
 
 <script>
-import HomeNavi from "../components/HomeNavi";
+import Navi from "../components/Navi";
 import Cards from "../components/Cards";
 export default {
   data() {
@@ -160,8 +155,8 @@ export default {
       area: false,
       address: '',
       formAddress: '',
-      lat: 34.39146551179752,
-      lng: 132.46128012819383,
+      lat: '',
+      lng: '',
       cardName: '',
       cardImg: '',
       cardId: '',
@@ -186,21 +181,22 @@ export default {
     },
     search(i) {
       this.address = i;
+      this.area = false;
     },
     areaToggle() {
       this.area = !this.area;
     },
-    // areaChange() {
-    //   this.geocoder.geocode({
-    //     'address': this.address
-    //   },(results, status) => {
-    //     if(status === google.maps.GeocoderStatus.OK) {
-    //       this.lat = results[0].geometry.location.lat();
-    //       this.lng = results[0].geometry.location.lng();
-    //       this.area= '';
-    //     }
-    //   })
-    // },
+    areaChange() {
+      this.geocoder.geocode({
+        'address': this.address
+      },(results, status) => {
+        if(status === google.maps.GeocoderStatus.OK) {
+          this.lat = results[0].geometry.location.lat();
+          this.lng = results[0].geometry.location.lng();
+          this.area= '';
+        }
+      })
+    },
     showSpotsData(spots) {
       this.spots = spots;
       console.log(this.spots)
@@ -226,6 +222,7 @@ export default {
     },
     spotsConversion() {
       this.markers = [];
+      console.log(this.spots);
       for (let i = 0; i < this.spots.length; i++) {
         const marker = {};
         const position = {};
@@ -233,9 +230,13 @@ export default {
         position.lat = Number(this.spots[i].spot.spotLat)
         position.lng = Number(this.spots[i].spot.spotLng)
         text.cardName = this.spots[i].spot.spotName
-        text.cardImg = this.spots[i].spot.spotImg
         text.cardId = this.spots[i].spot.id
         marker.position = position
+        for (let n = 0; n < this.spots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.spots[i].image[n].path
+          }
+        }
         marker.text = text
         this.markers.push(marker)
       }
@@ -252,8 +253,12 @@ export default {
         position.lat = Number(this.streetSpots[i].spot.spotLat)
         position.lng = Number(this.streetSpots[i].spot.spotLng)
         text.cardName = this.streetSpots[i].spot.spotName
-        text.cardImg = this.streetSpots[i].spot.spotImg
         text.cardId = this.streetSpots[i].spot.id
+        for (let n = 0; n < this.streetSpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.streetSpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -270,8 +275,12 @@ export default {
         position.lat = Number(this.parkSpots[i].spot.spotLat)
         position.lng = Number(this.parkSpots[i].spot.spotLng)
         text.cardName = this.parkSpots[i].spot.spotName
-        text.cardImg = this.parkSpots[i].spot.spotImg
         text.cardId = this.parkSpots[i].spot.id
+        for (let n = 0; n < this.parkSpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.parkSpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -288,8 +297,12 @@ export default {
         position.lat = Number(this.rainSpots[i].spot.spotLat)
         position.lng = Number(this.rainSpots[i].spot.spotLng)
         text.cardName = this.rainSpots[i].spot.spotName
-        text.cardImg = this.rainSpots[i].spot.spotImg
         text.cardId = this.rainSpots[i].spot.id
+        for (let n = 0; n < this.rainSpots[i].image.length; n++) {
+          if(n == 0) {
+            text.cardImg = this.rainSpots[i].image[n].path
+          }
+        }
         marker.position = position
         marker.text = text
         this.markers.push(marker)
@@ -329,12 +342,12 @@ export default {
 
   },
   mounted() {
-    // this.$gmapApiPromiseLazy().then(() => {
-    //    this.geocoder = new google.maps.Geocoder()
-    // })
+    this.$gmapApiPromiseLazy().then(() => {
+       this.geocoder = new google.maps.Geocoder()
+    })
   },
   components: {
-    HomeNavi,
+    Navi,
     Cards
   },
 }
@@ -354,23 +367,19 @@ export default {
   width: 80%;
   margin: 0 auto;
 }
-.search-flex {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-}
 .search {
-  margin: 20px;
-  padding: 20px;
-  width: 70%;
-  background: #fefefe;
+  margin: 20px 0;
+  height: 100px;
+  width: 100%;
+  background: #c6c8ca;
   border-radius: 5px;
-  border: 1px solid #fefefe;
+  border: 1px solid #c6c8ca;
   box-sizing: border-box;
   box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.25);
   display: flex;
   justify-content: space-around;
   align-items: center;
+  flex-wrap: wrap;
 }
 .search-area {
   cursor: pointer;
@@ -397,13 +406,13 @@ export default {
   color: #565655;
 }
 .search-items {
-  width: 450px;
+  width: 50%;
   display: flex;
   align-items: center;
   position: relative;
 }
 .search-form {
-  width: 450px;
+  width: 100%;
   border: 2px solid #565655;
   border-radius: 5px;
 }
@@ -420,10 +429,6 @@ export default {
 .search-icon:hover {
   background: #616469;
 }
-.gif {
-  margin-right: 30px;
-  height: 100px;
-}
 .area-flex {
   display: flex;
   flex-wrap: wrap;
@@ -439,6 +444,7 @@ export default {
 }
 .area-items {
   display: flex;
+  flex-wrap: wrap;
 }
 .area-items p {
   font-weight: normal;
@@ -448,5 +454,38 @@ export default {
 }
 .area-items p:hover{
   color: rgb(230, 192, 25);
+}
+.map {
+  width: 100%; 
+  height: 500px;
+  margin-bottom: 20px;
+}
+.card {
+  border: none;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .home-img {
+    height: 500px;
+  }
+  .search {
+    height: 70px;
+  }
+  .map {
+    height: 400px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .home-img {
+    height: 400px;
+  }
+  .search {
+    margin: 20px 0;
+  }
+  .map {
+    height: 300px;
+  }
 }
 </style>
