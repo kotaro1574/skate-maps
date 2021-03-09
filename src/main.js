@@ -16,7 +16,7 @@ Vue.use(VueGoogleMaps, {
     key: process.env.VUE_APP_GOOGLE_MAP_API,
     libraries: 'places',
     region: 'JP',
-    language: 'ja'
+    language: 'ja', 
   }
 })
 Vue.config.productionTip = false

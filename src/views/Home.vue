@@ -147,11 +147,14 @@
 </template>
 
 <script>
+import GoogleMapsApiLoader from 'google-maps-api-loader';
 import Navi from "../components/Navi";
 import Cards from "../components/Cards";
 export default {
   data() {
     return {
+      google: null,
+      geocoder: null,
       area: false,
       address: '',
       formAddress: '',
@@ -187,10 +190,11 @@ export default {
       this.area = !this.area;
     },
     areaChange() {
-      this.geocoder.geocode({
+      console.log(this.geocoder);
+      this.geocoder.prototype.geocode({
         'address': this.address
       },(results, status) => {
-        if(status === google.maps.GeocoderStatus.OK) {
+        if(status === this.google.maps.GeocoderStatus.OK) {
           this.lat = results[0].geometry.location.lat();
           this.lng = results[0].geometry.location.lng();
           this.area= '';
@@ -341,10 +345,15 @@ export default {
     },
 
   },
-  mounted() {
+  async mounted() {
+    this.google = await GoogleMapsApiLoader({
+      apiKey: process.env.VUE_APP_GOOGLE_MAP_API
+    });
+    console.log(this.google);
     this.$gmapApiPromiseLazy().then(() => {
-       this.geocoder = new google.maps.Geocoder()
-    })
+       this.geocoder = this.google.maps.Geocoder;
+       console.log(this.google.maps.Geocoder)
+    });
   },
   components: {
     Navi,

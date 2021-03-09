@@ -99,6 +99,7 @@
 </template>
     
 <script>
+import GoogleMapsApiLoader from 'google-maps-api-loader';
 import axios from "axios";
 import Navi from "../components/Navi"
 export default {
@@ -115,10 +116,10 @@ export default {
   },
   methods: {
     areaChange() {
-      this.geocoder.geocode({
+      this.geocoder.prototype.geocode({
         'address': this.address
       },(results, status) => {
-        if(status === google.maps.GeocoderStatus.OK) {
+        if(status === this.google.maps.GeocoderStatus.OK) {
           this.lat = results[0].geometry.location.lat();
           this.lng = results[0].geometry.location.lng();
           console.log(this.lat + this.lng);
@@ -145,9 +146,12 @@ export default {
     },
   },
   
-  mounted() {
+  async mounted() {
+    this.google = await GoogleMapsApiLoader({
+      apiKey: process.env.VUE_APP_GOOGLE_MAP_API
+    });
     this.$gmapApiPromiseLazy().then(() => {
-      this.geocoder = new google.maps.Geocoder()
+      this.geocoder = this.google.maps.Geocoder;
     })
   },
   watch: {
