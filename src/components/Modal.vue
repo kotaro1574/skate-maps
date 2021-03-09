@@ -54,7 +54,7 @@ export default {
     },
     fileDelete(id) {
       this.update = true
-      axios .delete("http://127.0.0.1:8000/api/besttricks/"+id, {params: {id: id}})
+      axios .delete(process.env.VUE_APP_SKATE_MAPS_API + "/api/besttricks/"+id, {params: {id: id}})
       .then((response) => {
         console.log(response);
         this.$emit('close', this.update);
