@@ -253,7 +253,7 @@ export default {
     },
     async getSpotWeater() {
       const item = await axios.get(
-          `http://api.openweathermap.org/data/2.5/onecall?lat=${this.position.lat}&lon=${this.position.lng}&cnt=6&lang=ja&appid=${process.env.VUE_APP_WEATHER}`
+          `https://api.openweathermap.org/data/2.5/onecall?lat=${this.position.lat}&lon=${this.position.lng}&cnt=6&lang=ja&appid=${process.env.VUE_APP_WEATHER}`
         );
         console.log(item);
         this.dailyWeatherData = [];
@@ -261,7 +261,7 @@ export default {
         this.dailyWeatherData = item.data.daily;
         for (let i = 0; i < this.dailyWeatherData.length; i++) {
           let weather = {};
-          const icon = `http://openweathermap.org/img/w/${this.dailyWeatherData[i].weather[0].icon}.png`
+          const icon = `https://openweathermap.org/img/w/${this.dailyWeatherData[i].weather[0].icon}.png`
           const main = this.dailyWeatherData[i].weather[0].main;
           const description = this.dailyWeatherData[i].weather[0].description;
           const date = new Date(this.dailyWeatherData[i].dt * 1000);
