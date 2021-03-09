@@ -106,7 +106,7 @@ export default {
     },
     async spotShow() {
       await axios
-        .get("http://127.0.0.1:8000/api/posts/" + this.id)
+        .get(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/" + this.id)
         .then((response) => {
           console.log(response)
           this.lat = Number(response.data.spot.spotLat);
@@ -137,7 +137,7 @@ export default {
       }
     },
     spotEdit() {
-      axios.put("http://127.0.0.1:8000/api/posts/"+this.id, {
+      axios.put(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/"+this.id, {
         spotName: this.spotName,
         spotText: this.spotText,
         spotType: this.spotType,
@@ -157,7 +157,7 @@ export default {
       }
       formData.append('post_id', this.id)
       console.log(formData);
-      axios.post("http://127.0.0.1:8000/api/files", formData, { 
+      axios.post(process.env.VUE_APP_SKATE_MAPS_API + "/api/files", formData, { 
         headers: {'Content-Type': 'multipart/form-data'}
       })
       .then((response) => {
@@ -186,7 +186,7 @@ export default {
     },
     spotDelete() {
       axios
-        .delete("http://127.0.0.1:8000/api/posts/" + this.id)
+        .delete(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/" + this.id)
         .then((response) => {
           console.log(response);
           this.$router.push({ name: 'Home' });

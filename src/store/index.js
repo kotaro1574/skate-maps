@@ -30,7 +30,7 @@ export default new Vuex.Store({
   actions: {
     async login({ commit }, { email, password }) {
       const responseLogin = await axios.post(
-        "http://127.0.0.1:8000/api/login",
+        process.env.VUE_APP_SKATE_MAPS_API + "/api/login",
         {
           email: email,
           password: password
@@ -39,7 +39,7 @@ export default new Vuex.Store({
       console.log(responseLogin);
       commit("error", responseLogin.data.message);
       const responseUser = await axios.get(
-        "http://127.0.0.1:8000/api/user",
+        process.env.VUE_APP_SKATE_MAPS_API + "/api/user",
         {
           params: {
             email: email
@@ -53,7 +53,7 @@ export default new Vuex.Store({
     },
     logout({ commit }) {
       axios
-        .post("http://127.0.0.1:8000/api/logout", {
+        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/logout", {
           auth: this.state.auth
         })
         .then((response) => {
@@ -67,7 +67,7 @@ export default new Vuex.Store({
     },
     async updateUserData({ commit }, { email }) {
       const responseUser = await axios.get(
-        "http://127.0.0.1:8000/api/user", {
+        process.env.VUE_APP_SKATE_MAPS_API + "/api/user", {
           params: {
             email: email
           }

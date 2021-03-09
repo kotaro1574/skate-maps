@@ -129,7 +129,7 @@ export default {
     auth() {
       this.error = '',
       axios
-        .post("http://127.0.0.1:8000/api/register", {
+        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/register", {
           name: this.name,
           email: this.email,
           password: this.password,

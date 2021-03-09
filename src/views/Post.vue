@@ -146,7 +146,7 @@ export default {
         this.error = 'マップの位置を指定してください'
       }
       
-      axios.post("http://127.0.0.1:8000/api/posts", {
+      axios.post(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts", {
         userId: this.$store.state.user.id,
         spotName: this.spotName,
         spotText: this.spotText,
@@ -167,7 +167,7 @@ export default {
       }
       formData.append('post_id', id)
       console.log(formData);
-      axios.post("http://127.0.0.1:8000/api/files", formData, { 
+      axios.post(process.env.VUE_APP_SKATE_MAPS_API + "/api/files", formData, { 
         headers: {'Content-Type': 'multipart/form-data'}
       })
       .then((response) => {

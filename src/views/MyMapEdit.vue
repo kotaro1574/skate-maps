@@ -133,7 +133,7 @@ export default {
       formData.append('instagramURL', this.instagramURL);
       formData.append('twitterURL', this.twitterURL);
       axios
-      .post("http://127.0.0.1:8000/api/user/" + this.$store.state.user.id, formData, { 
+      .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/user/" + this.$store.state.user.id, formData, { 
         headers: {'X-HTTP-Method-Override': 'PUT'}
       })
       .then((response) => {

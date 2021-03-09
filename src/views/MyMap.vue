@@ -130,7 +130,7 @@ export default {
         this.getMyWeater();
       } else {
         await axios
-          .get("http://127.0.0.1:8000/api/user/"+this.id)
+          .get(process.env.VUE_APP_SKATE_MAPS_API+"/api/user/"+this.id)
           .then((response) => {
             console.log(response.data.data);
             this.name = response.data.data.name;

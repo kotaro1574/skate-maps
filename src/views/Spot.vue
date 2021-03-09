@@ -185,12 +185,12 @@ export default {
   methods: {
     async  fileGet() {
       let file = [];
-      const files = await axios.get("http://127.0.0.1:8000/api/besttricks", {params: {id: this.id}})
+      const files = await axios.get(process.env.VUE_APP_SKATE_MAPS_API + "/api/besttricks", {params: {id: this.id}})
         console.log(files);
       for (let i = 0; i < files.data.data.length; i++) {
         console.log(files.data.data[i].id);
         await axios
-          .get("http://127.0.0.1:8000/api/besttricks/" + files.data.data[i].id, {
+          .get(process.env.VUE_APP_SKATE_MAPS_API + "/api/besttricks/" + files.data.data[i].id, {
             params: {
               id: files.data.data[i].id
           }
@@ -215,7 +215,7 @@ export default {
       data.append('file', this.file);
       console.log(data.get('file'));
       axios
-        .post("http://127.0.0.1:8000/api/besttricks", data, {
+        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/besttricks", data, {
             headers: {'Content-Type': 'multipart/form-data'}
         })
         .then((response) => {
@@ -237,7 +237,7 @@ export default {
     },
     async spotShow() {
       await axios
-        .get("http://127.0.0.1:8000/api/posts/" + this.id)
+        .get(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/" + this.id)
         .then((response) => {
           console.log(response)
           this.spotData = response.data;
@@ -298,7 +298,7 @@ export default {
     favoriteDelete() {
         axios({
           method: "delete",
-          url: "http://127.0.0.1:8000/api/like",
+          url: process.env.VUE_APP_SKATE_MAPS_API + "/api/like",
           data: {
             post_id: this.id,
             user_id: this.$store.state.user.id
@@ -311,7 +311,7 @@ export default {
     },
     favorite() {
       axios
-        .post("http://127.0.0.1:8000/api/like", {
+        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/like", {
           post_id: this.id,
           user_id: this.$store.state.user.id
         })
@@ -323,7 +323,7 @@ export default {
     },
     spotEdit() {
       axios
-        .put("http://127.0.0.1:8000/api/posts/" + this.id, {
+        .put(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/" + this.id, {
           spotId: this.id,
           spotName: this.spotName,
           spotImg: this.spotImg,
@@ -340,7 +340,7 @@ export default {
     },
     spotDelete() {
       axios
-        .delete("http://127.0.0.1:8000/api/posts/" + this.id)
+        .delete(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/" + this.id)
         .then((response) => {
           console.log(response);
           this.$router.push({ name: 'Home' });
@@ -348,7 +348,7 @@ export default {
     },
     commentGet() {
       axios
-        .get("http://127.0.0.1:8000/api/comments/",
+        .get(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments/",
           {
             params: {
               post_id: this.id
@@ -362,7 +362,7 @@ export default {
     },
     commentPost() {
       axios
-        .post("http://127.0.0.1:8000/api/comments/", {
+        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments/", {
           post_id: this.id,
           user_id: this.$store.state.user.id,
           comment: this.spotComment,
@@ -394,7 +394,7 @@ export default {
     },
     commentDelete(id) {
       axios
-        .delete("http://127.0.0.1:8000/api/comments/"+id)
+        .delete(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments/"+id)
         .then((response) => {
           console.log(response);
           this.commentGet();
