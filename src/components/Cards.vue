@@ -232,7 +232,11 @@ export default {
     async getSpots() {
       let spot = [];
       let mySpot = [];
-      const spots = await axios.get(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/")
+      const spots = await axios.get(process.env.VUE_APP_SKATE_MAPS_API + "/api/posts/",  {headers: {
+        "Content-Type": "application/json",
+      },
+      withCredentials: false,
+      });
       console.log(spots);
       for (let i = 0; i < spots.data.data.length; i++) {
         await axios
