@@ -348,7 +348,7 @@ export default {
     },
     commentGet() {
       axios
-        .get(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments/",
+        .get(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments",
           {
             params: {
               post_id: this.id
@@ -362,7 +362,7 @@ export default {
     },
     commentPost() {
       axios
-        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments/", {
+        .post(process.env.VUE_APP_SKATE_MAPS_API + "/api/comments", {
           post_id: this.id,
           user_id: this.$store.state.user.id,
           comment: this.spotComment,
