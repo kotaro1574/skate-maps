@@ -137,6 +137,8 @@ export default {
             this.profile = response.data.data.profile;
             this.userImg = response.data.data.image;
             this.userId = response.data.data.id;
+            this.instagramURL = response.data.data.instagramURL;
+            this.twitterURL = response.data.data.twitterURL;
             this.lat = Number(response.data.data.userLat);
             this.lng = Number(response.data.data.userLng);
           })
